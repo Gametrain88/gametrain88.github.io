@@ -21,8 +21,18 @@ body {
   font-size: 40px;
 }
 
+.FF13{
+    background-color: #9ed2f7;
+}
 
+.ng{
+    background-color: #422118;
+    color: aliceblue
+}
 
+.Battlefield{
+    background-color: #333132;
+}
 /* Style the top navigation bar */
 .navbar {
   overflow: hidden;
@@ -70,7 +80,9 @@ body {
 /* Main column */
 .main {   
   -ms-flex: 70%; /* IE10 */
+text-shadow: 1px 1px gray;
   flex: 70%;
+    text-align: center;
   background-color: white;
   padding: 20px;
 }

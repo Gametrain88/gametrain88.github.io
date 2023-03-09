@@ -12,9 +12,12 @@ body {
 .header {
   padding: 80px;
   text-align: center;
-  background-color: #33A7FF;
+  background-image: url(WebsiteFiles/Tech%20Background.jpg);
+    background-size: cover;
+    background-position: center;
   color: white;
 }
+
 
 /* Increase the font size of the heading */
 .header h1 {
@@ -38,6 +41,7 @@ body {
 .navbar {
   overflow: hidden;
   background-color: #333;
+    tab-size: 10%
 }
 
 /* Style the navigation bar links */
@@ -85,8 +89,11 @@ text-shadow: 1px 1px gray;
   flex: 70%;
     text-align: center;
   background-color: white;
+    border-style: dashed;
   padding: 20px;
 }
+
+
 
 /* Fake image, just for this example */
 .fakeimg {

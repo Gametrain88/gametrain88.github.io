@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA A+ Core 1 Study Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 1. RESET & VARIABLES */
+        :root {
+            --bg-dark: #0f0f0f;
+            --bg-card: #1a1a1a;
+            --bg-header: rgba(15, 15, 15, 0.95);
+            --text-main: #e0e0e0;
+            --text-mute: #a0a0a0;
+            --accent: #deff9a;
+            --border: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Urbanist', sans-serif;
+            line-height: 1.6;
+            padding-top: 80px; /* Space for fixed header */
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        /* 2. NAVIGATION */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--bg-header);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        .nav-links a:hover { color: var(--accent); }
+
+        /* Active Link Style */
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+
+        /* 3. LAYOUT CONTAINERS */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        section {
+            margin-bottom: 100px;
+            scroll-margin-top: 100px; /* Offset for sticky header */
+        }
+
+        /* 4. HERO SECTION */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(222,255,154,0.05) 0%, rgba(15,15,15,0) 100%);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .hero h1 span { color: var(--accent); }
+        .hero p { font-size: 1.5rem; color: var(--text-mute); }
+
+        /* 5. COMPONENTS */
+        
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 40px;
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+        }
+
+        .section-header h2 { font-size: 2.5rem; color: white; }
+        .section-header p { font-size: 1.2rem; color: var(--text-mute); }
+
+        /* Cards/Tables Container */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Force scroll on tiny screens */
+        }
+
+        th {
+            background-color: #252525;
+            color: var(--accent);
+            text-align: left;
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            color: #ccc;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        
+        .highlight {
+            color: var(--accent);
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        /* Detailed Lists (Wi-Fi) */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .detail-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .detail-item h3 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .detail-item p { color: #ccc; }
+
+        /* Split Layout (Image + Text) */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .split-content ul {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .step-item {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 3px solid #333;
+        }
+
+        .step-item:hover { border-left-color: var(--accent); }
+
+        .step-item strong { display: block; color: var(--accent); font-size: 1.2rem; margin-bottom: 5px;}
+
+        .split-image img {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* 6. RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; } /* Simplified for MVP */
+            .menu-toggle { display: block; color: white; }
+            
+            .split-layout { grid-template-columns: 1fr; }
+            .split-image { order: -1; margin-bottom: 20px; }
+            
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">Gametrain's <span>A+ Cert Notepad</span></div>
+        <div class="nav-links">
+            <a href="#" class="active">PT_1</a>
+            <a href="#">PT_2</a>
+            <a href="#">PT_3</a>
+            <a href="#">PT_4</a>
+        </div>
+        <div class="menu-toggle"><i class="fa-solid fa-bars"></i></div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <h1>CompTIA A+ <span>Core 1</span></h1>
+            <p>High-Yield Visual Study Guide (Exam 220-1101) PT_1</p>
+            <p>Ports, Wi-Fi, Printers, RAID</p>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- SECTION 1: PORTS -->
+        <section id="ports">
+            <div class="section-header">
+                <h2>Network Ports</h2>
+                <p>Memorize the Port Number & Protocol Function</p>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="20%">Port</th>
+                                <th width="20%">Protocol</th>
+                                <th>Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="highlight">20/21</td><td>FTP</td><td>File Transfer Protocol (Sending Files)</td></tr>
+                            <tr><td class="highlight">22</td><td>SSH</td><td>Secure Shell (Encrypted Remote Access)</td></tr>
+                            <tr><td class="highlight">23</td><td>Telnet</td><td>Unsecured Remote Access (Avoid Use)</td></tr>
+                            <tr><td class="highlight">25</td><td>SMTP</td><td>Simple Mail Transfer (Sending Email)</td></tr>
+                            <tr><td class="highlight">53</td><td>DNS</td><td>Domain Name System (Hostname to IP)</td></tr>
+                            <tr><td class="highlight">80</td><td>HTTP</td><td>Unsecured Web Browsing</td></tr>
+                            <tr><td class="highlight">110</td><td>POP3</td><td>Post Office Protocol (Receive/Delete Email)</td></tr>
+                            <tr><td class="highlight">143</td><td>IMAP</td><td>Internet Message Access (Receive/Sync Email)</td></tr>
+                            <tr><td class="highlight">443</td><td>HTTPS</td><td>Secure Web Browsing (Encrypted)</td></tr>
+                            <tr><td class="highlight">3389</td><td>RDP</td><td>Remote Desktop Protocol (Windows GUI)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: WI-FI -->
+        <section id="wifi">
+            <div class="section-header">
+                <h2>Wi-Fi Standards</h2>
+                <p>802.11 Evolution, Frequencies, and Use Cases</p>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <h3>802.11b</h3>
+                    <p><strong>Frequency:</strong> 2.4 GHz<br><strong>Speed:</strong> 11 Mbps<br><br>The legacy standard. Slowest speed, high interference from microwaves/Bluetooth.</p>
+                </div>
+                <div class="detail-item">
+                    <h3>802.11g</h3>
+                    <p><strong>Frequency:</strong> 2.4 GHz<br><strong>Speed:</strong> 54 Mbps<br><br>Backward compatible with 'b', but faster. Still suffers from 2.4 GHz crowding.</p>
+                </div>
+                <div class="detail-item">
+                    <h3>802.11n (Wi-Fi 4)</h3>
+                    <p><strong>Frequency:</strong> 2.4 & 5 GHz<br><strong>Speed:</strong> 600 Mbps<br><br>First to use MIMO (Multiple antennas). The bridge between old and new Wi-Fi.</p>
+                </div>
+                <div class="detail-item">
+                    <h3>802.11ac (Wi-Fi 5)</h3>
+                    <p><strong>Frequency:</strong> 5 GHz Only<br><strong>Speed:</strong> 6.9 Gbps<br><br>Very fast, less interference. Introduced Multi-User MIMO for better concurrency.</p>
+                </div>
+                <div class="detail-item" style="border-color: var(--accent);">
+                    <h3>802.11ax (Wi-Fi 6)</h3>
+                    <p><strong>Frequency:</strong> 2.4 & 5 GHz<br><strong>Speed:</strong> 9.6 Gbps<br><br>The modern standard. Uses OFDMA for high efficiency in crowded areas (stadiums, offices).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PRINTERS -->
+        <section id="printers">
+            <div class="section-header">
+                <h2>Laser Printing Process</h2>
+                <p>The 7 Steps (Mnemonic: Please Come Eat Donuts This Friday Coming)</p>
+            </div>
+
+            <div class="split-layout">
+                <div class="split-content">
+                    <ul>
+                        <li class="step-item">
+                            <strong>1. Processing</strong>
+                            The printer receives the document and converts it into a bitmap image in memory.
+                        </li>
+                        <li class="step-item">
+                            <strong>2. Charging</strong>
+                            The Primary Corona Wire applies a high negative charge (-600V) to the photosensitive drum.
+                        </li>
+                        <li class="step-item">
+                            <strong>3. Exposing</strong>
+                            The laser shoots the drum, neutralizing the negative charge where the image should be.
+                        </li>
+                        <li class="step-item">
+                            <strong>4. Developing</strong>
+                            Toner (negatively charged) is released and sticks ONLY to the areas the laser hit.
+                        </li>
+                        <li class="step-item">
+                            <strong>5. Transferring</strong>
+                            The Transfer Corona gives the paper a positive charge, pulling the toner off the drum onto the page.
+                        </li>
+                        <li class="step-item">
+                            <strong>6. Fusing</strong>
+                            Heat and pressure rollers melt the toner powder permanently into the paper fibers.
+                        </li>
+                        <li class="step-item">
+                            <strong>7. Cleaning</strong>
+                            A rubber blade scrapes excess toner off the drum to prepare for the next rotation.
+                        </li>
+                    </ul>
+                </div>
+                <div class="split-image">
+                    <img src="http://googleusercontent.com/image_collection/image_retrieval/16515859153020305242" alt="Laser Printer Diagram">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: RAID -->
+        <section id="raid">
+            <div class="section-header">
+                <h2>RAID Storage</h2>
+                <p>Redundant Array of Independent Disks</p>
+            </div>
+
+            <div class="split-layout">
+                <div class="split-image">
+                    <img src="http://googleusercontent.com/image_collection/image_retrieval/14604583881306579245" alt="RAID Levels Diagram">
+                </div>
+                <div class="split-content">
+                    <div class="detail-grid" style="grid-template-columns: 1fr;"> <!-- Stack vertically here -->
+                        <div class="detail-item">
+                            <h3>RAID 0 (Striping)</h3>
+                            <p>Splits data across drives for speed. <strong>Zero redundancy.</strong> If one drive fails, everything is lost.</p>
+                        </div>
+                        <div class="detail-item">
+                            <h3>RAID 1 (Mirroring)</h3>
+                            <p>Duplicates data exactly. <strong>High safety.</strong> Requires 2 drives. You lose 50% of your total storage capacity.</p>
+                        </div>
+                        <div class="detail-item">
+                            <h3>RAID 5 (Striping w/ Parity)</h3>
+                            <p>Stripes data and "parity" bits across 3+ drives. Can survive <strong>one drive failure</strong>. Good balance of speed/space.</p>
+                        </div>
+                        <div class="detail-item">
+                            <h3>RAID 10 (Stripe of Mirrors)</h3>
+                            <p>Combines RAID 0 speed and RAID 1 safety. Requires 4+ drives. The most expensive but highest performance option.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align: center; color: #555; padding: 50px 0; border-top: 1px solid #333;">
+        </footer>
+
+    </div>
+
+</body>
+</html>

@@ -208,15 +208,15 @@
 
         .detail-item p { color: #ccc; }
 
-        /* Split Layout (Image + Text) */
-        .split-layout {
+        /* Two Column Layout (Text Only) */
+        .two-column-text {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
             align-items: start;
         }
 
-        .split-content ul {
+        .two-column-text ul {
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -233,21 +233,14 @@
 
         .step-item strong { display: block; color: var(--accent); font-size: 1.2rem; margin-bottom: 5px;}
 
-        .split-image img {
-            width: 100%;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
         /* 6. RESPONSIVE DESIGN */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
             .nav-links { display: none; } /* Simplified for MVP */
             .menu-toggle { display: block; color: white; }
             
-            .split-layout { grid-template-columns: 1fr; }
-            .split-image { order: -1; margin-bottom: 20px; }
+            /* Stack columns on mobile */
+            .two-column-text { grid-template-columns: 1fr; }
             
             .container { padding: 20px; }
         }
@@ -350,8 +343,9 @@
                 <p>The 7 Steps (Mnemonic: Please Come Eat Donuts This Friday Coming)</p>
             </div>
 
-            <div class="split-layout">
-                <div class="split-content">
+            <div class="two-column-text">
+                <!-- Left Column: Steps 1-4 -->
+                <div>
                     <ul>
                         <li class="step-item">
                             <strong>1. Processing</strong>
@@ -369,6 +363,12 @@
                             <strong>4. Developing</strong>
                             Toner (negatively charged) is released and sticks ONLY to the areas the laser hit.
                         </li>
+                    </ul>
+                </div>
+                
+                <!-- Right Column: Steps 5-7 -->
+                <div>
+                    <ul>
                         <li class="step-item">
                             <strong>5. Transferring</strong>
                             The Transfer Corona gives the paper a positive charge, pulling the toner off the drum onto the page.
@@ -383,9 +383,6 @@
                         </li>
                     </ul>
                 </div>
-                <div class="split-image">
-                    <img src="http://googleusercontent.com/image_collection/image_retrieval/16515859153020305242" alt="Laser Printer Diagram">
-                </div>
             </div>
         </section>
 
@@ -396,37 +393,33 @@
                 <p>Redundant Array of Independent Disks</p>
             </div>
 
-            <div class="split-layout">
-                <div class="split-image">
-                    <img src="http://googleusercontent.com/image_collection/image_retrieval/14604583881306579245" alt="RAID Levels Diagram">
+            <!-- Full width grid since image is removed -->
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <h3>RAID 0 (Striping)</h3>
+                    <p>Splits data across drives for speed. <strong>Zero redundancy.</strong> If one drive fails, everything is lost.</p>
                 </div>
-                <div class="split-content">
-                    <div class="detail-grid" style="grid-template-columns: 1fr;"> <!-- Stack vertically here -->
-                        <div class="detail-item">
-                            <h3>RAID 0 (Striping)</h3>
-                            <p>Splits data across drives for speed. <strong>Zero redundancy.</strong> If one drive fails, everything is lost.</p>
-                        </div>
-                        <div class="detail-item">
-                            <h3>RAID 1 (Mirroring)</h3>
-                            <p>Duplicates data exactly. <strong>High safety.</strong> Requires 2 drives. You lose 50% of your total storage capacity.</p>
-                        </div>
-                        <div class="detail-item">
-                            <h3>RAID 5 (Striping w/ Parity)</h3>
-                            <p>Stripes data and "parity" bits across 3+ drives. Can survive <strong>one drive failure</strong>. Good balance of speed/space.</p>
-                        </div>
-                        <div class="detail-item">
-                            <h3>RAID 10 (Stripe of Mirrors)</h3>
-                            <p>Combines RAID 0 speed and RAID 1 safety. Requires 4+ drives. The most expensive but highest performance option.</p>
-                        </div>
-                    </div>
+                <div class="detail-item">
+                    <h3>RAID 1 (Mirroring)</h3>
+                    <p>Duplicates data exactly. <strong>High safety.</strong> Requires 2 drives. You lose 50% of your total storage capacity.</p>
+                </div>
+                <div class="detail-item">
+                    <h3>RAID 5 (Striping w/ Parity)</h3>
+                    <p>Stripes data and "parity" bits across 3+ drives. Can survive <strong>one drive failure</strong>. Good balance of speed/space.</p>
+                </div>
+                <div class="detail-item">
+                    <h3>RAID 10 (Stripe of Mirrors)</h3>
+                    <p>Combines RAID 0 speed and RAID 1 safety. Requires 4+ drives. The most expensive but highest performance option.</p>
                 </div>
             </div>
         </section>
 
         <footer style="text-align: center; color: #555; padding: 50px 0; border-top: 1px solid #333;">
+            <p>GT. Technical Solutions</p>
         </footer>
 
     </div>
 
 </body>
 </html>
+```

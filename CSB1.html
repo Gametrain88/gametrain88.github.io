@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Basics Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations for smooth transitions */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .correct-answer { background-color: #22c55e !important; color: white !important; border-color: #22c55e !important;}
+        .wrong-answer { background-color: #ef4444 !important; color: white !important; border-color: #ef4444 !important;}
+        
+        /* New Success Animations */
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-50vh) scale(1.5); opacity: 0; }
+        }
+        .animate-float-up {
+            animation: floatUp forwards ease-out;
+        }
+        
+        /* Disable tap highlight on mobile for a native app feel */
+        button { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 font-sans text-slate-800 overflow-x-hidden">
+
+    <!-- Success Flash Bars -->
+    <div id="top-flash" class="fixed top-0 left-1/2 -translate-x-1/2 w-0 h-4 bg-green-500 shadow-[0_0_20px_#22c55e] opacity-0 pointer-events-none transition-all duration-300 z-50"></div>
+    <div id="bottom-flash" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-0 h-4 bg-green-500 shadow-[0_0_20px_#22c55e] opacity-0 pointer-events-none transition-all duration-300 z-50"></div>
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden z-10 fade-in">
+        
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-center text-white">
+            <h1 class="text-2xl font-bold tracking-tight">CS Basics Challenge</h1>
+            <p id="score-display" class="text-indigo-200 mt-2 text-sm hidden">Score: <span id="score-val">0</span> / <span id="total-val">5</span></p>
+        </div>
+
+        <!-- Screens -->
+        <div class="p-6 min-h-[300px] flex flex-col justify-center">
+            
+            <!-- Start Screen -->
+            <div id="start-screen" class="text-center fade-in">
+                <div class="text-5xl mb-4">💻</div>
+                <h2 class="text-xl font-semibold mb-2">Ready to test your knowledge?</h2>
+                <p class="text-slate-500 mb-8 text-sm">Answer <span id="start-total-val">30</span> quick questions about Computer Science fundamentals.</p>
+                <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-colors shadow-md text-lg">
+                    Start Game
+                </button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden fade-in">
+                <p id="question-progress" class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-2">Question 1 of 5</p>
+                <h2 id="question-text" class="text-xl font-semibold mb-6 text-slate-700 leading-snug">Question goes here?</h2>
+                
+                <div id="options-container" class="flex flex-col space-y-3">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+
+            <!-- End Screen -->
+            <div id="end-screen" class="hidden text-center fade-in">
+                <div id="end-icon" class="text-5xl mb-4">🏆</div>
+                <h2 class="text-2xl font-bold mb-2">Quiz Complete!</h2>
+                <p class="text-slate-600 mb-6 text-lg">You scored <span id="final-score" class="font-bold text-indigo-600">0</span> out of <span id="final-total">5</span>.</p>
+                
+                <div id="feedback-text" class="mb-8 font-medium p-4 rounded-lg bg-slate-50 text-slate-700">
+                    <!-- Feedback injected via JS -->
+                </div>
+
+                <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-colors shadow-md text-lg">
+                    Play Again
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Game Data ---
+        const questions = [
+            {
+                question: "What is the 'brain' of the computer called?",
+                options: ["RAM (Random Access Memory)", "CPU (Central Processing Unit)", "GPU (Graphics Processing Unit)", "Hard Drive"],
+                answer: 1
+            },
+            {
+                question: "Which of the following is a 'Boolean' value?",
+                options: ["42", "\"Hello World\"", "True", "3.14"],
+                answer: 2
+            },
+            {
+                question: "What does HTML stand for?",
+                options: ["HyperText Markup Language", "High-Tech Machine Learning", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"],
+                answer: 0
+            },
+            {
+                question: "In programming, what is used to repeat a block of code multiple times?",
+                options: ["An If-Statement", "A Variable", "A Function", "A Loop"],
+                answer: 3
+            },
+            {
+                question: "Computers process data using the binary system. What two numbers make up binary?",
+                options: ["1 and 2", "0 and 1", "True and False", "1 and 10"],
+                answer: 1
+            },
+            {
+                question: "What is a 'bug' in computer programming?",
+                options: ["An insect in the computer case", "A feature that hasn't been announced", "An error, flaw, or fault in the code", "A type of computer virus"],
+                answer: 2
+            },
+            {
+                question: "How many bits make up a single byte?",
+                options: ["4", "8", "16", "32"],
+                answer: 1
+            },
+            {
+                question: "What does CSS stand for in web development?",
+                options: ["Computer Style Sheets", "Creative Style System", "Cascading Style Sheets", "Coding Structure Syntax"],
+                answer: 2
+            },
+            {
+                question: "What is the main function of an Operating System (OS)?",
+                options: ["To run video games at high frame rates", "To manage computer hardware and software resources", "To block viruses from entering the computer", "To create documents and spreadsheets"],
+                answer: 1
+            },
+            {
+                question: "Which of the following is considered an 'Input' device?",
+                options: ["Monitor", "Printer", "Speaker", "Keyboard"],
+                answer: 3
+            },
+            {
+                question: "Which of the following is considered an 'Output' device?",
+                options: ["Mouse", "Microphone", "Monitor", "Webcam"],
+                answer: 2
+            },
+            {
+                question: "What is an algorithm?",
+                options: ["A complex mathematical equation", "A step-by-step set of instructions to solve a problem", "A specific programming language", "A type of computer hardware"],
+                answer: 1
+            },
+            {
+                question: "What is the main purpose of RAM (Random Access Memory)?",
+                options: ["Long-term permanent storage", "Short-term working memory for active tasks", "Processing graphical data", "Cooling the CPU"],
+                answer: 1
+            },
+            {
+                question: "What does URL stand for?",
+                options: ["Universal Routing Link", "Uniform Resource Locator", "Unified Rendering Language", "Unlimited Reference Location"],
+                answer: 1
+            },
+            {
+                question: "Which of the following is an example of a high-level programming language?",
+                options: ["Machine Code", "Assembly", "Python", "Binary"],
+                answer: 2
+            },
+            {
+                question: "What is the purpose of a 'variable' in programming?",
+                options: ["To execute code multiple times", "To store data values that can be changed or retrieved", "To connect to the internet", "To design the user interface"],
+                answer: 1
+            },
+            {
+                question: "What does HTTP stand for?",
+                options: ["HyperText Transfer Protocol", "HyperText Transmission Process", "High-Tech Transfer Protocol", "Home Tool Tracking Protocol"],
+                answer: 0
+            },
+            {
+                question: "What do you call a network of computers that spans a large geographical area?",
+                options: ["LAN (Local Area Network)", "PAN (Personal Area Network)", "WAN (Wide Area Network)", "WLAN (Wireless Local Area Network)"],
+                answer: 2
+            },
+            {
+                question: "What does 'IP' stand for in 'IP Address'?",
+                options: ["Internal Processor", "Internet Protocol", "Information Provider", "Interconnected Path"],
+                answer: 1
+            },
+            {
+                question: "In cybersecurity, what is 'Phishing'?",
+                options: ["A way to catch computer bugs", "A fraudulent attempt to trick users into revealing sensitive info", "A type of strong password encryption", "A firewall security protocol"],
+                answer: 1
+            },
+            {
+                question: "What is the job of a 'Compiler'?",
+                options: ["To write code automatically", "To translate source code into machine-readable code", "To fix broken hardware", "To design websites"],
+                answer: 1
+            },
+            {
+                question: "What defines 'Open Source' software?",
+                options: ["Software that is always free to buy", "Software where the source code is available for anyone to inspect and modify", "Software that runs only on open networks", "Software developed only by Microsoft"],
+                answer: 1
+            },
+            {
+                question: "What is 'The Cloud' in computing?",
+                options: ["A literal cloud that stores data in the atmosphere", "Servers accessed over the internet, and the software running on them", "A type of weather tracking software", "The space inside a hard drive"],
+                answer: 1
+            },
+            {
+                question: "In a URL like 'google.com', what is the '.com' portion called?",
+                options: ["Top-Level Domain (TLD)", "Subdomain", "Protocol", "File Path"],
+                answer: 0
+            },
+            {
+                question: "What is a 'String' in programming?",
+                options: ["A thread connecting computer parts", "A sequence of characters (text)", "A line of consecutive numbers", "A mathematical formula"],
+                answer: 1
+            },
+            {
+                question: "What does a conditional statement (like 'if/else') allow code to do?",
+                options: ["Run indefinitely in a loop", "Store massive amounts of data", "Make decisions based on certain conditions", "Change the color of the application"],
+                answer: 2
+            },
+            {
+                question: "What is an 'Array' or 'List' in computer science?",
+                options: ["A single number", "A data structure that stores a collection of multiple items", "A type of computer screen", "A security password"],
+                answer: 1
+            },
+            {
+                question: "What does GUI stand for?",
+                options: ["Graphical User Interface", "General Utility Instrument", "Global User Index", "Graphics Unit Integration"],
+                answer: 0
+            },
+            {
+                question: "What is 'Encryption'?",
+                options: ["Deleting files permanently", "Converting readable data into an encoded format to prevent unauthorized access", "Making a computer run faster", "Connecting to a Wi-Fi network"],
+                answer: 1
+            },
+            {
+                question: "In binary logic, which number typically represents 'True'?",
+                options: ["0", "1", "2", "10"],
+                answer: 1
+            }
+        ];
+
+        // --- Game State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswering = false; // Prevents double-clicking
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreVal = document.getElementById('score-val');
+        const totalVal = document.getElementById('total-val');
+        
+        const questionProgress = document.getElementById('question-progress');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        // --- Initialize dynamic text on load ---
+        document.getElementById('start-total-val').innerText = questions.length;
+
+        // --- Functions ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function triggerSuccessEffect() {
+            // Flash the top and bottom bars
+            const topFlash = document.getElementById('top-flash');
+            const bottomFlash = document.getElementById('bottom-flash');
+            
+            topFlash.classList.replace('w-0', 'w-full');
+            bottomFlash.classList.replace('w-0', 'w-full');
+            topFlash.classList.replace('opacity-0', 'opacity-100');
+            bottomFlash.classList.replace('opacity-0', 'opacity-100');
+            
+            setTimeout(() => {
+                topFlash.classList.replace('opacity-100', 'opacity-0');
+                bottomFlash.classList.replace('opacity-100', 'opacity-0');
+                setTimeout(() => {
+                    topFlash.classList.replace('w-full', 'w-0');
+                    bottomFlash.classList.replace('w-full', 'w-0');
+                }, 300);
+            }, 500);
+
+            // Create floating emojis
+            const emojis = ['🌟', '✨', '🚀', '💯', '🔥', '✅'];
+            for(let i = 0; i < 8; i++) {
+                const el = document.createElement('div');
+                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                el.className = 'fixed pointer-events-none z-0 text-3xl animate-float-up opacity-0';
+                el.style.left = (Math.random() * 90 + 5) + 'vw'; // Random horizontal position
+                el.style.bottom = '-20px';
+                el.style.animationDuration = (Math.random() * 1 + 1.5) + 's'; // Random speed
+                el.style.animationDelay = (Math.random() * 0.2) + 's'; // Random delay
+                document.body.appendChild(el);
+                
+                // Remove from DOM after animation finishes
+                setTimeout(() => el.remove(), 3000);
+            }
+        }
+
+        function startGame() {
+            // Shuffle the questions before we begin!
+            shuffleArray(questions);
+
+            currentQuestionIndex = 0;
+            score = 0;
+            isAnswering = false;
+            
+            document.getElementById('total-val').innerText = questions.length;
+            
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            scoreDisplay.classList.remove('hidden');
+            
+            updateScoreDisplay();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const currentQ = questions[currentQuestionIndex];
+            
+            // Update UI
+            questionProgress.innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            questionText.innerText = currentQ.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+            
+            // Generate option buttons
+            currentQ.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all font-medium text-slate-700 bg-white shadow-sm";
+                btn.innerText = optionText;
+                btn.onclick = () => selectAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex, buttonElement) {
+            if (isAnswering) return; // Prevent clicking multiple answers
+            isAnswering = true;
+
+            const currentQ = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQ.answer;
+            const allButtons = optionsContainer.querySelectorAll('button');
+
+            // Highlight chosen answer
+            if (isCorrect) {
+                buttonElement.classList.add('correct-answer');
+                score++;
+                updateScoreDisplay();
+                triggerSuccessEffect(); // Trigger the visual reward!
+            } else {
+                buttonElement.classList.add('wrong-answer');
+                // Highlight the correct one so they learn
+                allButtons[currentQ.answer].classList.add('correct-answer');
+            }
+
+            // Disable all buttons so they can't change their mind
+            allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            // Wait a moment for them to see the result, then move on
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    isAnswering = false;
+                    
+                    // Re-trigger animation
+                    quizScreen.classList.remove('fade-in');
+                    void quizScreen.offsetWidth; // trigger reflow
+                    quizScreen.classList.add('fade-in');
+                    
+                    showQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1200); // 1.2 second delay
+        }
+
+        function updateScoreDisplay() {
+            scoreVal.innerText = score;
+        }
+
+        function endGame() {
+            quizScreen.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-total').innerText = questions.length;
+            
+            const feedbackText = document.getElementById('feedback-text');
+            const endIcon = document.getElementById('end-icon');
+            
+            // Custom feedback based on score
+            if (score === questions.length) {
+                feedbackText.innerText = "Perfect score! You are a CS master.";
+                endIcon.innerText = "🌟";
+            } else if (score >= questions.length / 2) {
+                feedbackText.innerText = "Great job! You know your basics.";
+                endIcon.innerText = "🎉";
+            } else {
+                feedbackText.innerText = "Good effort! A little more practice and you'll have it down.";
+                endIcon.innerText = "💡";
+            }
+        }
+    </script>
+</body>
+</html>

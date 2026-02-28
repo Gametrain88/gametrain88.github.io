@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Joshua Butler | Story & Skills</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); }
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 antialiased overflow-x-hidden">
+
+    <!-- ==========================================
+         NAVIGATION BAR
+         Edit links and brand name here
+         ========================================== -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3 group">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-xl group-hover:rotate-12 transition">J</div>
+                    <span class="font-bold text-lg tracking-tight hidden sm:block">Joshua Butler</span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+                <a href="index.html" class="hover:text-blue-400 transition">Home</a>
+                <a href="https://github.com/Gametrain88" class="hover:text-blue-400 transition">Github</a>
+                <a href="https://medium.com/@joshuabutler31" class="hover:text-blue-400 transition">Stories</a>
+                <a href="index.html#projects" class="hover:text-blue-400 transition">Projects</a>
+            </div>
+            <a href="mailto:gametraintech@gmail.com" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full text-sm font-semibold transition text-white">
+                Contact
+            </a>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-4">
+        <!-- Background Decorative Elements -->
+        <div class="blob -top-20 -left-20"></div>
+        <div class="blob bottom-0 right-0"></div>
+
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- ==========================================
+                 HERO / INTRO SECTION
+                 Edit your main headline and profile image here
+                 ========================================== -->
+            <section class="mb-20 text-center md:text-left">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 italic tracking-tight">Gamer at Birth, <br><span class="gradient-text">Teacher by Choice.</span></h1>
+                <div class="flex flex-col md:flex-row gap-10 items-center mt-12">
+                    <div class="shrink-0">
+                        <div class="relative group">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+                            <img src="./WebsiteFiles/josh.jpg" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name=Joshua+Butler&size=400&background=2563eb&color=fff'"
+                                 alt="Joshua Butler" 
+                                 class="relative w-48 h-48 rounded-2xl object-cover border-2 border-slate-700 shadow-xl">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-xl text-slate-300 leading-relaxed font-medium">
+                            "My story started with Donkey Kong Country at 3 years old. That spark grew into a lifelong mission to educate and empower through technology."
+                        </p>
+                        <p class="text-slate-500 text-sm flex items-center justify-center md:justify-start">
+                            <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i> Technical Solutions Specialist
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 THE JOURNEY (TIMELINE)
+                 Edit your career milestones and personal history here
+                 ========================================== -->
+            <section class="space-y-12 mb-32">
+                <div class="flex items-center space-x-4 mb-8">
+                    <h2 class="text-3xl font-bold">The Journey</h2>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                </div>
+                
+                <div class="grid gap-12">
+                    <!-- Timeline Item: Level 1 -->
+                    <div class="relative pl-8 border-l-2 border-blue-500/30">
+                        <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 ring-4 ring-[#0f172a]"></div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Level 1: The Gamer & Developer</h3>
+                        <p class="text-slate-400 leading-relaxed text-lg">
+                            I couldn't leave games alone. By age 10, I began exploring game development, driven by the same curiosity that kept me glued to the screen as a toddler. That curiosity evolved into a deep understanding of logic, mechanics, and digital worlds.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item: Teaching -->
+                    <div class="relative pl-8 border-l-2 border-purple-500/30">
+                        <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-purple-500 ring-4 ring-[#0f172a]"></div>
+                        <h3 class="text-2xl font-bold text-white mb-4">The Heart of a Teacher</h3>
+                        <p class="text-slate-400 leading-relaxed text-lg">
+                            My love for teaching started at home while taking care of my three younger siblings. I found that no matter the task, it was always more fulfilling to show someone else how to do it better. I love providing others with skills they can carry for life.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item: Current Role -->
+                    <div class="relative pl-8 border-l-2 border-green-500/30">
+                        <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-green-500 ring-4 ring-[#0f172a]"></div>
+                        <h3 class="text-2xl font-bold text-white mb-4">GT Technical Solutions</h3>
+                        <p class="text-slate-400 leading-relaxed text-lg">
+                            Today, I've landed my dream path in IT services. Beyond the servers and software, I get to teach teachers and students about robotics and computers. My goal is to run parallel with you until you're ready to shoot off onto your next path.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 PHILOSOPHY SECTION
+                 Edit your mission statement and community goals here
+                 ========================================== -->
+            <section class="glass p-10 rounded-[2.5rem] border border-slate-800 mb-32 text-center">
+                <h2 class="text-3xl font-bold mb-6">From Me To You</h2>
+                <p class="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
+                    I want to strengthen the knowledge of my community and reinforce our shared STEM identity. My gratitude takes the form of giving back knowledge that helps people look beyond their own horizons.
+                </p>
+            </section>
+
+            <!-- ==========================================
+                 SKILLS GRID
+                 Edit your skill icons and labels here
+                 ========================================== -->
+            <section class="mb-32">
+                <h2 class="text-center text-slate-500 uppercase tracking-widest text-sm font-bold mb-12">Current Tech Stack & Focus</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/20 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center group hover:bg-slate-800/40 transition">
+                        <i class="fas fa-robot text-3xl mb-4 text-blue-400 group-hover:scale-110 transition"></i>
+                        <span class="font-semibold">Robotics Ed</span>
+                    </div>
+                    <div class="bg-slate-800/20 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center group hover:bg-slate-800/40 transition">
+                        <i class="fas fa-chalkboard-teacher text-3xl mb-4 text-purple-400 group-hover:scale-110 transition"></i>
+                        <span class="font-semibold">IT Training</span>
+                    </div>
+                    <div class="bg-slate-800/20 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center group hover:bg-slate-800/40 transition">
+                        <i class="fab fa-unity text-3xl mb-4 text-white group-hover:scale-110 transition"></i>
+                        <span class="font-semibold">Unity C#</span>
+                    </div>
+                    <div class="bg-slate-800/20 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center group hover:bg-slate-800/40 transition">
+                        <i class="fas fa-shield-alt text-3xl mb-4 text-green-400 group-hover:scale-110 transition"></i>
+                        <span class="font-semibold">IT Support</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CONTACT / CTA SECTION
+                 Edit your primary contact links and call to action here
+                 ========================================== -->
+            <section class="text-center bg-blue-600 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                <h2 class="text-3xl font-bold text-white mb-4">Let's build the future together.</h2>
+                <p class="text-blue-100 mb-8 max-w-xl mx-auto text-lg">Whether you're looking for game development assets or technical education support, I'm here to help.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="mailto:gametraintech@gmail.com" class="px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold hover:bg-slate-100 transition shadow-lg">gametraintech@gmail.com</a>
+                    <a href="https://github.com/Gametrain88" class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition border border-slate-700">View My Github</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         FOOTER
+         Edit copyright info and technical credits here
+         ========================================== -->
+    <footer class="py-12 px-4 text-center border-t border-slate-900">
+        <p class="text-slate-500 text-sm">© 2025 GT. Technical Solutions • Joshua Butler</p>
+    </footer>
+
+</body>
+</html>

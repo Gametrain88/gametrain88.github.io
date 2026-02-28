@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CS Bounce Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a; /* Dark night sky */
+            font-family: 'Fredoka', sans-serif;
+            touch-action: none; /* Prevents mobile scrolling/zooming */
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 500px;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #1e1b4b, #3b82f6);
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Overlays */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.85);
+            color: white;
+            z-index: 20;
+            transition: opacity 0.3s;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Question HUD */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;
+        }
+
+        .option-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-right: 8px;
+            color: white;
+        }
+
+        /* Mobile Controls */
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+            box-sizing: border-box;
+        }
+
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: white;
+            user-select: none;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        /* Desktop Hint */
+        @media (min-width: 768px) {
+            #controls { display: none; }
+            #desktop-hint { display: block !important; }
+        }
+
+        /* Print & PDF Styles */
+        @media print {
+            body, html, #game-container {
+                background: white !important;
+                height: auto !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                color: black !important;
+            }
+            canvas, #hud, #controls, #start-screen, #game-over {
+                display: none !important;
+            }
+            #study-guide-screen {
+                position: relative !important;
+                background: white !important;
+                color: black !important;
+                display: block !important;
+                opacity: 1 !important;
+                padding: 0 !important;
+                height: auto !important;
+            }
+            .no-print { display: none !important; }
+            #study-guide-content {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                color: black !important;
+            }
+            .print-black { color: black !important; }
+            .page-break { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    
+    <!-- Question HUD -->
+    <div id="hud" class="hidden">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-yellow-300 font-bold text-lg text-shadow">Score: <span id="score">0</span></span>
+            <span class="text-cyan-300 font-bold text-lg text-shadow">⏳ <span id="timer">0:00</span></span>
+            <span class="text-white font-semibold text-sm bg-black/50 px-3 py-1 rounded-full">Question <span id="q-num">1</span>/<span id="q-total">10</span></span>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 shadow-lg">
+            <h2 id="q-text" class="text-white font-bold text-md leading-tight mb-2">Question goes here?</h2>
+            <div id="q-options" class="flex flex-col gap-1 text-sm text-slate-200">
+                <!-- Options injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- The Canvas Game -->
+    <canvas id="gameCanvas" width="400" height="700"></canvas>
+
+    <!-- Mobile Touch Controls -->
+    <div id="controls" class="hidden">
+        <div class="control-btn" id="btn-left">◀</div>
+        <div class="control-btn bg-blue-500/40 border-blue-300" id="btn-down">⬇️</div>
+        <div class="control-btn" id="btn-right">▶</div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="overlay">
+        <div class="text-6xl mb-4 animate-bounce">🤖</div>
+        <h1 class="text-4xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">CS Bounce</h1>
+        <p class="text-slate-300 mb-8 text-center px-6">Hover over the answers, align yourself, and drop onto the correct one!</p>
+        
+        <p id="desktop-hint" class="hidden text-yellow-300 mb-4 text-sm font-bold tracking-wide text-center">USE LEFT / RIGHT ARROW KEYS<br>PRESS DOWN ARROW TO DROP</p>
+        
+        <div class="flex flex-col gap-4 w-full max-w-xs mt-2 px-4 pb-4">
+            <button onclick="startGame('beginner')" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-full text-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all transform hover:scale-105 active:scale-95 border-2 border-emerald-300/30">
+                Beginner (10 Qs)
+            </button>
+            <button onclick="startGame('intermediate')" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-full text-lg shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all transform hover:scale-105 active:scale-95 border-2 border-blue-300/30">
+                Intermediate (15 Qs)
+            </button>
+            <button onclick="startGame('professional')" class="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold py-3 px-6 rounded-full text-lg shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all transform hover:scale-105 active:scale-95 border-2 border-purple-300/30">
+                Professional (20 Qs)
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over" class="overlay hidden">
+        <div id="go-icon" class="text-6xl mb-4">💥</div>
+        <h1 class="text-4xl font-bold mb-2 text-red-400">GAME OVER</h1>
+        <p class="text-xl mb-1 text-slate-200">You scored: <span id="final-score" class="font-bold text-yellow-400 text-2xl">0</span></p>
+        <p class="text-lg mb-4 text-slate-300">Time: <span id="final-time" class="font-bold text-cyan-400">0:00</span></p>
+        <p id="go-feedback" class="text-slate-400 mb-4 px-6 text-center">You hit the wrong answer or fell!</p>
+        
+        <!-- Correct Answer Display -->
+        <div id="correct-answer-box" class="hidden bg-slate-800/80 p-4 rounded-xl border border-slate-600 mb-8 max-w-sm text-center mx-4 shadow-lg">
+            <p class="text-slate-300 text-sm mb-1 uppercase tracking-wider font-bold">The correct answer was:</p>
+            <p id="correct-answer-text" class="text-green-400 font-bold text-lg leading-tight"></p>
+        </div>
+
+        <div class="flex flex-col gap-3 w-full max-w-xs px-4">
+            <button onclick="showStudyGuide()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-10 rounded-full text-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] transition-transform hover:scale-105 active:scale-95 border-2 border-indigo-400/50">
+                📖 View Study Guide
+            </button>
+            <button onclick="returnToMenu()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-10 rounded-full text-lg shadow-lg transition-transform hover:scale-105 active:scale-95 border-2 border-slate-500/50">
+                Main Menu
+            </button>
+        </div>
+    </div>
+
+    <!-- Study Guide Screen -->
+    <div id="study-guide-screen" class="overlay hidden overflow-y-auto justify-start pt-12 px-4 pb-24 bg-slate-900">
+        <h1 class="text-3xl font-bold mb-2 text-emerald-400 text-center print-black no-print">CS Study Guide</h1>
+        <p class="text-slate-400 text-sm mb-6 text-center no-print">Review these answers before trying again!</p>
+        
+        <!-- Content gets injected here -->
+        <div id="study-guide-content" class="w-full max-w-md bg-white p-6 rounded-xl text-slate-800 shadow-xl text-left mb-8">
+        </div>
+
+        <!-- Sticky Bottom Buttons -->
+        <div class="fixed bottom-0 left-0 w-full p-4 bg-gradient-to-t from-slate-900 to-transparent flex justify-center gap-4 no-print">
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                💾 Save as PDF
+            </button>
+            <button onclick="closeStudyGuide()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95">
+                Back
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Data: Question Sets by Difficulty ---
+    const questionsData = {
+        beginner: [
+            { q: "What is the 'brain' of the computer called?", o: ["RAM", "CPU", "GPU", "Hard Drive"], a: 1 },
+            { q: "What does HTML stand for?", o: ["HyperText Markup Language", "High-Tech Machine Learning", "Home Tool Markup Language", "Hyperlinks Text"], a: 0 },
+            { q: "What is used to repeat a block of code multiple times?", o: ["If-Statement", "Variable", "Function", "Loop"], a: 3 },
+            { q: "What two numbers make up the binary system?", o: ["1 and 2", "0 and 1", "True and False", "1 and 10"], a: 1 },
+            { q: "What is a 'bug' in computer programming?", o: ["An insect", "Unannounced feature", "Error or flaw in code", "A virus"], a: 2 },
+            { q: "How many bits make up a single byte?", o: ["4", "8", "16", "32"], a: 1 },
+            { q: "What does CSS stand for in web design?", o: ["Computer Style Sheets", "Creative Style System", "Cascading Style Sheets", "Coding Syntax"], a: 2 },
+            { q: "What is the main function of an Operating System?", o: ["Run video games", "Manage hardware/software", "Block viruses", "Create documents"], a: 1 },
+            { q: "Which of the following is an 'Input' device?", o: ["Monitor", "Printer", "Speaker", "Keyboard"], a: 3 },
+            { q: "Which of the following is an 'Output' device?", o: ["Mouse", "Microphone", "Monitor", "Webcam"], a: 2 }
+        ],
+        intermediate: [
+            { q: "What system translates web addresses like 'google.com' into IP addresses?", o: ["VPN", "DNS", "HTML", "MAC"], a: 1 },
+            { q: "What does API stand for?", o: ["Advanced Programming Interface", "Application Programming Interface", "Automated Process Integration", "Active Protocol Internet"], a: 1 },
+            { q: "Which storage type uses flash memory and has no moving parts?", o: ["HDD", "SSD", "Optical Drive", "Floppy Disk"], a: 1 },
+            { q: "While binary is base-2, what base is the Hexadecimal system?", o: ["Base-8", "Base-10", "Base-16", "Base-32"], a: 2 },
+            { q: "In programming, what is a reusable block of code that performs a specific task?", o: ["A Variable", "A Comment", "A Function", "A Database"], a: 2 },
+            { q: "What type of malware locks your files and demands payment to unlock them?", o: ["Spyware", "Adware", "Ransomware", "Trojan"], a: 2 },
+            { q: "In networking, what term describes the time it takes for data to travel from one point to another?", o: ["Bandwidth", "Latency", "Throughput", "Frequency"], a: 1 },
+            { q: "Which type of memory is the fastest and closest to the CPU?", o: ["RAM", "Cache", "SSD", "Virtual Memory"], a: 1 },
+            { q: "What type of error occurs when code violates the grammar rules of a programming language?", o: ["Logic Error", "Runtime Error", "Syntax Error", "Human Error"], a: 2 },
+            { q: "What is 'Git' primarily used for in software development?", o: ["Version Control", "Web Hosting", "Writing Code", "Virus Scanning"], a: 0 },
+            { q: "What does the 'S' in HTTPS stand for?", o: ["System", "Secure", "Server", "Standard"], a: 1 },
+            { q: "What is the standard language used to communicate with databases?", o: ["Python", "C++", "SQL", "Java"], a: 2 },
+            { q: "In cybersecurity, what is 'Phishing'?", o: ["Catching bugs", "Tricking users for info", "Password encryption", "Firewall protocol"], a: 1 },
+            { q: "What do you call a sequence of text characters in programming?", o: ["A Thread", "A String", "A Line", "A Boolean"], a: 1 },
+            { q: "What software translates human-readable source code into machine code?", o: ["Editor", "Compiler", "Browser", "Terminal"], a: 1 }
+        ],
+        professional: [
+            { q: "What is the Big O time complexity of a standard Binary Search?", o: ["O(1)", "O(n)", "O(n log n)", "O(log n)"], a: 3 },
+            { q: "In Object-Oriented Programming, what allows different objects to respond to the same method call?", o: ["Inheritance", "Polymorphism", "Encapsulation", "Abstraction"], a: 1 },
+            { q: "What is the term for a function that calls itself?", o: ["Iteration", "Overloading", "Recursion", "Callback"], a: 2 },
+            { q: "What data structure operates on a Last In, First Out (LIFO) principle?", o: ["Queue", "Array", "Stack", "Linked List"], a: 2 },
+            { q: "What data structure operates on a First In, First Out (FIFO) principle?", o: ["Queue", "Tree", "Stack", "Graph"], a: 0 },
+            { q: "What is a one-way mathematical algorithm used heavily in cryptography and passwords?", o: ["Hash Function", "Sorting Algorithm", "Compression", "Pathfinding"], a: 0 },
+            { q: "In OS concepts, what is it called when two processes block each other infinitely waiting for resources?", o: ["Starvation", "Deadlock", "Race Condition", "Paging"], a: 1 },
+            { q: "What is the unique, hardcoded physical address of a network interface card?", o: ["IP Address", "Subnet Mask", "MAC Address", "Gateway"], a: 2 },
+            { q: "Which Boolean operator outputs True ONLY if the two inputs are different?", o: ["AND", "OR", "XOR", "NAND"], a: 2 },
+            { q: "What is the core of an operating system that has complete control over everything in the system?", o: ["Shell", "Kernel", "Terminal", "GUI"], a: 1 },
+            { q: "Where is dynamically allocated memory typically stored at runtime?", o: ["The Stack", "The Heap", "The Cache", "Registers"], a: 1 },
+            { q: "What famous test determines whether a machine can exhibit human-like intelligent behavior?", o: ["Turing Test", "Voight-Kampff Test", "CAPTCHA", "Dijkstra's Test"], a: 0 },
+            { q: "What architectural style do most modern web APIs use, utilizing standard HTTP methods?", o: ["SOAP", "GraphQL", "REST", "gRPC"], a: 2 },
+            { q: "What is a cyberattack called that exploits a previously unknown, unpatched vulnerability?", o: ["DDoS Attack", "Zero-Day Exploit", "SQL Injection", "Man in the Middle"], a: 1 },
+            { q: "How many bits long is an IPv6 address?", o: ["32 bits", "64 bits", "128 bits", "256 bits"], a: 2 },
+            { q: "Which protocol resolves IP addresses to MAC addresses on a local network?", o: ["DHCP", "ARP", "DNS", "ICMP"], a: 1 },
+            { q: "Which design pattern restricts the instantiation of a class to one single instance?", o: ["Factory", "Observer", "Singleton", "Decorator"], a: 2 },
+            { q: "What is the process of altering code's internal structure without changing its external behavior?", o: ["Debugging", "Compiling", "Refactoring", "Testing"], a: 2 },
+            { q: "What networking protocol guarantees reliable, ordered delivery of data packets?", o: ["UDP", "TCP", "IP", "FTP"], a: 1 },
+            { q: "In databases, what property ensures transactions are fully completed or fully rolled back?", o: ["ACID", "BASE", "SOLID", "CRUD"], a: 0 }
+        ]
+    };
+
+    let gameQuestions = []; // Shuffled version for the current game
+
+    // --- Setup Canvas ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // --- Game Variables ---
+    let animationId;
+    let isGameOver = true;
+    let score = 0;
+    let currentQIndex = 0;
+    let currentDifficultyLevel = 'beginner'; // Track this for the study guide
+    
+    // Timer Variables
+    let gameStartTime = 0;
+    let elapsedSeconds = 0;
+    let timerInterval = null;
+
+    // Physics & Camera
+    let gravity = 0.2;
+    let jumpStrength = -16;    // Increased so player shoots up to the levitation point
+    let cameraY = 0; 
+    let baseWorldY = 0; // Tracks the height of the current "Level"
+    
+    // Levitation State
+    let isLevitating = false;
+    let currentTargetY = 0;
+    let floatingTimer = 0;
+
+    // Visual Flare Variables
+    let stars = [];
+    let playerTrail = [];
+    let pulseTimer = 0;
+
+    // Player Object
+    let player = {
+        x: width / 2,
+        y: height - 100,
+        vx: 0,
+        vy: 0,
+        size: 30,
+        speed: 4.5,            // Lowered from 6 so horizontal movement matches the slower jump
+        emoji: '🤖'
+    };
+
+    // Platforms
+    let platforms = [];
+    let particles = [];
+    let keys = { left: false, right: false, down: false };
+
+    // Styling constants
+    const platColors = [
+        { bg: '#ef4444', label: 'A' }, // Red
+        { bg: '#3b82f6', label: 'B' }, // Blue
+        { bg: '#22c55e', label: 'C' }, // Green
+        { bg: '#eab308', label: 'D' }  // Yellow
+    ];
+
+    // --- Input Handling ---
+    // Keyboard
+    window.addEventListener('keydown', (e) => {
+        if(e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+        if(e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = true;
+    });
+    window.addEventListener('keyup', (e) => {
+        if(e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+        if(e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
+    });
+
+    // Mobile Touch
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnDown = document.getElementById('btn-down');
+    
+    // Left Button
+    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; });
+    btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); keys.left = false; });
+    btnLeft.addEventListener('mousedown', () => keys.left = true);
+    btnLeft.addEventListener('mouseup', () => keys.left = false);
+    btnLeft.addEventListener('mouseleave', () => keys.left = false);
+
+    // Right Button
+    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); keys.right = true; });
+    btnRight.addEventListener('touchend', (e) => { e.preventDefault(); keys.right = false; });
+    btnRight.addEventListener('mousedown', () => keys.right = true);
+    btnRight.addEventListener('mouseup', () => keys.right = false);
+    btnRight.addEventListener('mouseleave', () => keys.right = false);
+
+    // Down Button
+    btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); keys.down = true; });
+    btnDown.addEventListener('touchend', (e) => { e.preventDefault(); keys.down = false; });
+    btnDown.addEventListener('mousedown', () => keys.down = true);
+    btnDown.addEventListener('mouseup', () => keys.down = false);
+    btnDown.addEventListener('mouseleave', () => keys.down = false);
+
+    // --- Helper Functions ---
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function createExplosion(x, y, color) {
+        for(let i=0; i<15; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                life: 1.0,
+                color: color
+            });
+        }
+    }
+
+    // --- Core Logic ---
+    function returnToMenu() {
+        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+
+    function updateTimer() {
+        if (isGameOver) return;
+        const now = Date.now();
+        elapsedSeconds = Math.floor((now - gameStartTime) / 1000);
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        document.getElementById('timer').innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function showStudyGuide() {
+        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('study-guide-screen').classList.remove('hidden');
+
+        const contentDiv = document.getElementById('study-guide-content');
+        
+        // Build the printable HTML
+        let html = `
+            <div class="border-b-2 border-slate-200 pb-4 mb-4">
+                <h2 class="text-2xl font-bold capitalize text-slate-900">CS Challenge: ${currentDifficultyLevel} Level</h2>
+                <p class="text-slate-500 text-sm">Official Study Guide & Answer Key</p>
+            </div>
+        `;
+
+        questionsData[currentDifficultyLevel].forEach((q, index) => {
+            const correctAnswerText = q.o[q.a];
+            html += `
+                <div class="mb-5 page-break">
+                    <p class="font-bold text-slate-800 leading-tight mb-1">${index + 1}. ${q.q}</p>
+                    <p class="text-emerald-700 font-semibold bg-emerald-50 inline-block px-2 py-1 rounded border border-emerald-200 text-sm">
+                        Answer: ${correctAnswerText}
+                    </p>
+                </div>
+            `;
+        });
+
+        contentDiv.innerHTML = html;
+        
+        // Scroll to top of the guide
+        document.getElementById('study-guide-screen').scrollTop = 0;
+    }
+
+    function closeStudyGuide() {
+        document.getElementById('study-guide-screen').classList.add('hidden');
+        document.getElementById('game-over').classList.remove('hidden');
+    }
+
+    function startGame(difficulty) {
+        currentDifficultyLevel = difficulty; // Save which difficulty we are playing
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('controls').classList.remove('hidden');
+
+        // Copy and shuffle questions based on selected difficulty
+        gameQuestions = JSON.parse(JSON.stringify(questionsData[difficulty]));
+        shuffle(gameQuestions);
+
+        score = 0;
+        currentQIndex = 0;
+        cameraY = 0;
+        
+        // Reset and Start Timer
+        gameStartTime = Date.now();
+        elapsedSeconds = 0;
+        document.getElementById('timer').innerText = "0:00";
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+
+        // Start base further below the screen so the first level spawns lower
+        baseWorldY = height + 200; 
+
+        // Set dynamic total questions in the UI
+        document.getElementById('q-total').innerText = gameQuestions.length;
+
+        // Reset Levitation to start immediately
+        isLevitating = true;
+        keys.down = false;
+
+        platforms = [];
+        particles = [];
+        playerTrail = [];
+        keys.left = false;
+        keys.right = false;
+
+        // Generate Parallax Starfield
+        stars = [];
+        for(let i=0; i<60; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height * 2,
+                z: Math.random() * 0.6 + 0.1 // Z-index for parallax depth speed
+            });
+        }
+
+        // Spawn first question level
+        spawnNextLevel();
+        updateHUD();
+
+        // Position player exactly at the first hover point
+        player.x = width / 2;
+        player.y = currentTargetY;
+        player.vx = 0;
+        player.vy = 0;
+
+        // Preset camera so the first level perfectly matches all the others
+        cameraY = player.y - (height * 0.55);
+
+        isGameOver = false;
+        cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function spawnNextLevel() {
+        if(currentQIndex >= gameQuestions.length) return; // You won!
+
+        const q = gameQuestions[currentQIndex];
+        
+        // Space levels out, and make the player hover closer to the answers
+        baseWorldY -= 350; 
+        currentTargetY = baseWorldY - 180; 
+
+        const platWidth = 70;
+        const spacing = (width - (platWidth * 4)) / 5; // Evenly space 4 platforms
+
+        // Create the 4 answer platforms
+        let xPos = spacing;
+        for(let i=0; i<4; i++) {
+            platforms.push({
+                x: xPos,
+                y: baseWorldY,
+                w: platWidth,
+                h: 20,
+                type: 'answer',
+                index: i, // 0=A, 1=B, 2=C, 3=D
+                isCorrect: (i === q.a),
+                color: platColors[i].bg,
+                label: platColors[i].label,
+                broken: false
+            });
+            xPos += platWidth + spacing;
+        }
+    }
+
+    function updateHUD() {
+        document.getElementById('score').innerText = score;
+        document.getElementById('q-num').innerText = currentQIndex + 1;
+        
+        if(currentQIndex < gameQuestions.length) {
+            const q = gameQuestions[currentQIndex];
+            document.getElementById('q-text').innerText = q.q;
+            
+            let optionsHTML = '';
+            for(let i=0; i<4; i++) {
+                optionsHTML += `<div><span class="option-badge" style="background-color: ${platColors[i].bg}">${platColors[i].label}</span> ${q.o[i]}</div>`;
+            }
+            document.getElementById('q-options').innerHTML = optionsHTML;
+        } else {
+            document.getElementById('q-text').innerText = "🎉 YOU WIN! ALL QUESTIONS ANSWERED!";
+            document.getElementById('q-options').innerHTML = "";
+        }
+    }
+
+    function triggerGameOver(reason) {
+        isGameOver = true;
+        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('controls').classList.add('hidden');
+        
+        // Stop the timer
+        if (timerInterval) clearInterval(timerInterval);
+        
+        const goScreen = document.getElementById('game-over');
+        const correctBox = document.getElementById('correct-answer-box');
+        
+        goScreen.classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        
+        // Display final time
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        document.getElementById('final-time').innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Hide the correct answer box by default
+        correctBox.classList.add('hidden');
+        
+        if(reason === 'fall') {
+            document.getElementById('go-icon').innerText = "📉";
+            document.getElementById('go-feedback').innerText = "You missed the platforms and fell!";
+        } else if (reason === 'wrong') {
+            document.getElementById('go-icon').innerText = "❌";
+            document.getElementById('go-feedback').innerText = "Ouch! You landed on the wrong answer.";
+            
+            // Fetch and display the correct answer
+            const q = gameQuestions[currentQIndex];
+            const correctText = q.o[q.a];
+            const correctLabel = platColors[q.a].label;
+            
+            document.getElementById('correct-answer-text').innerText = `${correctLabel}: ${correctText}`;
+            correctBox.classList.remove('hidden');
+            
+        } else if (reason === 'win') {
+            document.getElementById('go-icon').innerText = "🏆";
+            document.getElementById('go-feedback').innerText = `Incredible! You answered all ${gameQuestions.length} questions correctly!`;
+            document.querySelector('#game-over h1').innerText = "YOU WIN!";
+            document.querySelector('#game-over h1').classList.replace('text-red-400', 'text-yellow-400');
+        }
+    }
+
+    function gameLoop() {
+        if (isGameOver) return;
+
+        // --- Physics & Input ---
+        // Enter Levitation Mode
+        if (!isLevitating && player.vy < 0 && player.y <= currentTargetY && currentQIndex < gameQuestions.length) {
+            isLevitating = true;
+            player.y = currentTargetY;
+            player.vy = 0;
+        }
+
+        if (isLevitating) {
+            if (keys.down) {
+                isLevitating = false;
+                player.vy = 5; // Initial downward drop speed
+            } else {
+                // Floating effect
+                floatingTimer += 0.1;
+                player.y = currentTargetY + Math.sin(floatingTimer) * 4;
+                
+                if (keys.left) player.vx = -player.speed;
+                else if (keys.right) player.vx = player.speed;
+                else player.vx *= 0.8;
+                
+                player.x += player.vx;
+            }
+        } else {
+            // Normal physics
+            if (keys.left) player.vx = -player.speed;
+            else if (keys.right) player.vx = player.speed;
+            else player.vx *= 0.8;
+
+            player.vy += gravity;
+            player.x += player.vx;
+            player.y += player.vy;
+        }
+
+        // Screen Wrap (go off left edge, appear on right)
+        if (player.x < -player.size) player.x = width;
+        if (player.x > width) player.x = -player.size;
+
+        // Camera Logic
+        let displayY = player.y - cameraY;
+        // Lock the camera to the lower-middle of the screen (55%)
+        // This ensures the hover height and answers are consistent for every single question
+        if (displayY < height * 0.55) {
+            cameraY = player.y - height * 0.55;
+        }
+
+        // --- Collisions ---
+        // Only check collision if falling downwards
+        if (player.vy > 0) {
+            for (let i = 0; i < platforms.length; i++) {
+                let p = platforms[i];
+                if (p.broken) continue;
+
+                // Simple AABB Collision (treating player as rectangle)
+                // We give a little leniency on the width
+                if (player.x + player.size/2 > p.x && 
+                    player.x - player.size/2 < p.x + p.w &&
+                    player.y + player.size > p.y && 
+                    player.y + player.size < p.y + p.h + player.vy) { // Check previous frame to prevent falling through
+                    
+                    // Hit an answer platform!
+                    if (p.type === 'answer') {
+                        if (p.isCorrect) {
+                            // CORRECT! Shoot up to next levitation point
+                            player.vy = jumpStrength; 
+                            createExplosion(player.x, p.y, '#22c55e');
+                            score++;
+                            currentQIndex++;
+                            
+                            if (currentQIndex >= gameQuestions.length) {
+                                triggerGameOver('win');
+                                return;
+                            }
+                            
+                            // Break ALL platforms so there is no grey platform left behind
+                            platforms.forEach(plat => plat.broken = true);
+
+                            updateHUD();
+                            spawnNextLevel();
+                        } else {
+                            // WRONG! Break it and let them fall
+                            p.broken = true;
+                            createExplosion(p.x + p.w/2, p.y, '#ef4444');
+                            triggerGameOver('wrong'); // Instant death mode
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if player fell below camera (Game Over)
+        if (player.y > cameraY + height + 100) {
+            triggerGameOver('fall');
+            return;
+        }
+
+        // --- Render ---
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. Draw Parallax Starfield Background
+        ctx.fillStyle = 'white';
+        stars.forEach(s => {
+            // Calculate Y based on camera, wrap around screen seamlessly
+            let sy = (s.y - cameraY * s.z) % height;
+            if (sy < 0) sy += height;
+            
+            ctx.globalAlpha = s.z; // Dimmer stars move slower
+            ctx.beginPath();
+            ctx.arc(s.x, sy, s.z * 3, 0, Math.PI*2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1.0;
+
+        // Draw Platforms
+        platforms.forEach(p => {
+            if (p.broken) return;
+            
+            let drawY = p.y - cameraY;
+            // Cull platforms way off screen
+            if(drawY > height + 100 || drawY < -100) return;
+
+            // Draw Colored Answer Platform
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.roundRect(p.x, drawY, p.w, p.h, 8);
+            ctx.fill();
+
+            // Draw Label (A, B, C, D)
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Fredoka, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.label, p.x + p.w/2, drawY + p.h/2 + 1);
+            
+            // Draw a little shine effect
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath();
+            ctx.roundRect(p.x, drawY, p.w, p.h/2, [8, 8, 0, 0]);
+            ctx.fill();
+        });
+
+        // Draw Particles
+        for(let i=particles.length-1; i>=0; i--) {
+            let pt = particles[i];
+            pt.x += pt.vx;
+            pt.y += pt.vy;
+            pt.life -= 0.05;
+            
+            if(pt.life <= 0) {
+                particles.splice(i, 1);
+            } else {
+                ctx.globalAlpha = pt.life;
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y - cameraY, 4, 0, Math.PI*2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        let pDrawY = player.y - cameraY;
+
+        // 2. Update and Draw Player Neon Trail
+        playerTrail.push({x: player.x, y: player.y});
+        if (playerTrail.length > 8) playerTrail.shift();
+
+        if (playerTrail.length > 1 && !isGameOver) {
+            ctx.beginPath();
+            ctx.moveTo(playerTrail[0].x, playerTrail[0].y - cameraY);
+            for(let i=1; i<playerTrail.length; i++) {
+                ctx.lineTo(playerTrail[i].x, playerTrail[i].y - cameraY);
+            }
+            
+            // Create fading gradient for trail
+            let grad = ctx.createLinearGradient(
+                playerTrail[0].x, playerTrail[0].y - cameraY, 
+                player.x, pDrawY
+            );
+            grad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+            grad.addColorStop(1, 'rgba(56, 189, 248, 0.5)');
+            
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = player.size * 0.8;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }
+
+        // 3. Draw Levitation Thruster Glow
+        if (isLevitating && !isGameOver) {
+            pulseTimer += 0.1;
+            let glowAlpha = 0.3 + Math.sin(pulseTimer) * 0.2;
+            ctx.fillStyle = `rgba(56, 189, 248, ${glowAlpha})`;
+            ctx.beginPath();
+            ctx.ellipse(player.x, pDrawY + 18, 14, 4, 0, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        // Draw Player (Robot Emoji)
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = 'white'; // Reset fillStyle so emoji isn't transparent
+        ctx.font = player.size + 'px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Slight rotation based on horizontal speed
+        ctx.save();
+        ctx.translate(player.x, pDrawY);
+        ctx.rotate(player.vx * 0.05);
+        ctx.fillText(player.emoji, 0, 0);
+        ctx.restore();
+
+        animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    // Initial draw just to show the background
+    ctx.clearRect(0, 0, width, height);
+
+</script>
+</body>
+</html>

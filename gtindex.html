@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joshua Butler | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); }
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-xl">J</div>
+                <span class="font-bold text-lg tracking-tight hidden sm:block">Joshua Butler</span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+                <a href="https://github.com/Gametrain88" class="hover:text-blue-400 transition">Github</a>
+                <a href="https://medium.com/@joshuabutler31" class="hover:text-blue-400 transition">Stories</a>
+                <a href="https://www.youtube.com/channel/UCy3rsDMTM6XghPM4D6LBA9Q" class="hover:text-blue-400 transition">YouTube</a>
+                <a href="#projects" class="hover:text-blue-400 transition">Projects</a>
+            </div>
+            <a href="mailto:JoshuaButler31@gmail.com" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full text-sm font-semibold transition text-white">
+                Contact Me
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-32 pb-16 px-4">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <h2 class="text-blue-400 font-semibold tracking-wider uppercase text-sm">Game Developer & IT Professional</h2>
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                    Hi, I'm <span class="gradient-text">Joshua Butler.</span>
+                </h1>
+                <p class="text-xl text-slate-400 leading-relaxed max-w-2xl">
+                    I'm a part-time Game Developer currently pursuing my Google IT Certification. I specialize in gameplay mechanics and creative problem-solving.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="https://Gametrain88.github.io/AboutMe.html" class="px-6 py-3 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-200 transition">About Me</a>
+                    <a href="https://Gametrain88.github.io/CSB1.html" class="px-6 py-3 border border-slate-700 rounded-xl font-bold hover:bg-slate-800 transition">Interactive Quiz</a>
+                </div>
+            </div>
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <img src="./WebsiteFiles/josh.jpg" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=Joshua+Butler&size=400&background=2563eb&color=fff'"
+                         alt="Joshua Butler" 
+                         class="relative w-64 h-64 md:w-80 md:h-80 rounded-full object-cover border-4 border-slate-900 shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Sections -->
+    <main class="max-w-6xl mx-auto px-4 py-16 space-y-32">
+        
+        <!-- Current Project -->
+        <section id="current" class="relative">
+            <div class="absolute -left-4 top-0 w-1 h-12 bg-blue-500 rounded-full"></div>
+            <h2 class="text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-bolt text-yellow-400 mr-3"></i> Current Project
+            </h2>
+            <div class="bg-slate-800/50 rounded-3xl p-8 md:p-12 border border-slate-700 hover:border-blue-500/50 transition">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <span class="text-blue-400 text-sm font-bold uppercase">Unity3D Asset</span>
+                        <h3 class="text-4xl font-bold mt-2 mb-4">ATB System Project</h3>
+                        <p class="text-slate-400 text-lg leading-relaxed mb-6">
+                            Recreating the iconic <strong>Active Time Battle (ATB)</strong> system from Final Fantasy XIII. 
+                            The goal is to build a robust, modular asset for the Unity3D platform that captures the fast-paced, 
+                            tactical flow of modern JRPGs.
+                        </p>
+                        <ul class="space-y-2 mb-8 text-slate-300">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Custom Time-based Bars</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Logic for Command Queuing</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Unity C# Implementation</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-900 rounded-2xl aspect-video flex items-center justify-center border border-slate-700">
+                        <i class="fas fa-gamepad text-6xl text-slate-700"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Past Projects Grid -->
+        <section id="projects">
+            <h2 class="text-3xl font-bold mb-12 flex items-center">
+                <i class="fas fa-history text-purple-400 mr-3"></i> Past Projects
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Smart Block -->
+                <div class="group bg-slate-800/30 border border-slate-700 rounded-2xl overflow-hidden hover:bg-slate-800/50 transition duration-300 flex flex-col">
+                    <div class="h-48 bg-blue-900/20 flex items-center justify-center relative overflow-hidden">
+                        <i class="fas fa-cubes text-5xl text-blue-500 group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold mb-2">Smart Block</h3>
+                        <p class="text-slate-400 text-sm mb-6 line-clamp-3">
+                            An endless runner where gravity is your enemy. Features hand-crafted music and intense physics-based obstacles.
+                        </p>
+                        <div class="mt-auto space-y-3">
+                            <a href="./Josh%2520Website%2520Projects/SmartBlock.zip" class="block w-full text-center py-2 bg-slate-700 hover:bg-blue-600 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download mr-2"></i> Download ZIP
+                            </a>
+                            <button onclick="toggleReflection()" class="block w-full text-center py-2 border border-slate-600 hover:border-slate-400 rounded-lg text-sm transition">
+                                View Reflection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEM Project -->
+                <div class="group bg-slate-800/30 border border-slate-700 rounded-2xl overflow-hidden hover:bg-slate-800/50 transition duration-300">
+                    <div class="h-48 bg-purple-900/20 flex items-center justify-center relative overflow-hidden">
+                        <i class="fas fa-graduation-cap text-5xl text-purple-500 group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">STEM Project</h3>
+                        <p class="text-slate-400 text-sm mb-6">
+                            A college classroom simulation showcasing change over time through student interactions and helpful peer tips.
+                        </p>
+                        <a href="#" class="inline-flex items-center text-purple-400 hover:text-purple-300 font-semibold transition">
+                            Source Files <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lucifer's Revenge -->
+                <div class="group bg-slate-800/30 border border-slate-700 rounded-2xl overflow-hidden hover:bg-slate-800/50 transition duration-300">
+                    <div class="h-48 bg-red-900/20 flex items-center justify-center relative overflow-hidden">
+                        <i class="fas fa-skull text-5xl text-red-500 group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Lucifer's Revenge</h3>
+                        <p class="text-slate-400 text-sm mb-6">
+                            High school senior project. Managed UI, enemy logic, and state transitions for a top-down action game.
+                        </p>
+                        <button onclick="openVideo()" class="inline-flex items-center text-red-400 hover:text-red-300 font-semibold transition">
+                            Watch Trailer <i class="fas fa-play-circle ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <a href="https://github.com/Gametrain88/CreativeProjects" class="p-8 bg-slate-800/30 border border-slate-700 rounded-3xl hover:bg-slate-800/60 transition group">
+                <h4 class="text-2xl font-bold mb-2 group-hover:text-blue-400 transition">Creative Projects</h4>
+                <p class="text-slate-400">View my open-source code and experimental Unity builds.</p>
+            </a>
+            <a href="https://Gametrain88.github.io/PT_1_Index.html" class="p-8 bg-slate-800/30 border border-slate-700 rounded-3xl hover:bg-slate-800/60 transition group">
+                <h4 class="text-2xl font-bold mb-2 group-hover:text-blue-400 transition">A+ Cert Notepad</h4>
+                <p class="text-slate-400">My study resources and notes for the Google IT/CompTIA A+ track.</p>
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-12 px-4 mt-20">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="text-xl font-bold mb-2">Joshua Butler</h3>
+                <p class="text-slate-500 text-sm">© 2024 Built with Code & Coffee</p>
+            </div>
+            <div class="flex space-x-6 text-xl text-slate-400">
+                <a href="https://github.com/Gametrain88" class="hover:text-white transition"><i class="fab fa-github"></i></a>
+                <a href="https://www.youtube.com/channel/UCy3rsDMTM6XghPM4D6LBA9Q" class="hover:text-white transition"><i class="fab fa-youtube"></i></a>
+                <a href="https://medium.com/@joshuabutler31" class="hover:text-white transition"><i class="fab fa-medium"></i></a>
+            </div>
+            <a href="mailto:JoshuaButler31@gmail.com" class="text-blue-400 hover:underline font-medium">JoshuaButler31@gmail.com</a>
+        </div>
+    </footer>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/90">
+        <div class="relative w-full max-w-4xl aspect-video">
+            <button onclick="closeVideo()" class="absolute -top-12 right-0 text-white text-3xl hover:text-slate-400">&times;</button>
+            <iframe id="videoIframe" class="w-full h-full rounded-2xl shadow-2xl" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdfModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/80">
+        <div class="relative w-full max-w-2xl h-[80vh] flex flex-col">
+            <button onclick="toggleReflection()" class="absolute -top-12 right-0 text-white text-3xl hover:text-slate-400">&times;</button>
+            <div class="bg-white rounded-2xl overflow-hidden flex-grow shadow-2xl">
+                <iframe src="./WebsiteFiles/SmartBlock%20Reflection.pdf" class="w-full h-full" frameborder="0"></iframe>
+            </div>
+            <div class="mt-4 p-4 glass rounded-xl text-center text-sm text-slate-300">
+                If the PDF doesn't load, make sure the local file exists in the WebsiteFiles folder.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openVideo() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoIframe');
+            iframe.src = "https://www.youtube.com/embed/WXhf-v3Ne0c?autoplay=1";
+            modal.classList.remove('hidden');
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoIframe');
+            iframe.src = "";
+            modal.classList.add('hidden');
+        }
+
+        function toggleReflection() {
+            const modal = document.getElementById('pdfModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Close on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeVideo();
+                document.getElementById('pdfModal').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

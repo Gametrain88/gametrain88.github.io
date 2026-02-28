@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Security Breach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: 'Share Tech Mono', monospace;
+            touch-action: none; /* Prevents mobile scrolling */
+            color: #00ffcc;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 600px;
+            margin: 0 auto;
+            background: radial-gradient(circle at center, #111122 0%, #050510 100%);
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+        }
+
+        /* CRT Scanline Effect */
+        #game-container::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: rgba(5, 5, 16, 0.9);
+            z-index: 20;
+            transition: opacity 0.3s;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; }
+
+        /* Mobile Controls */
+        #dpad {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+            z-index: 15;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        .dpad-btn {
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 8px;
+            color: #00ffcc;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px;
+            user-select: none;
+            backdrop-filter: blur(4px);
+        }
+        .dpad-btn:active { background: rgba(0, 255, 204, 0.4); }
+        
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 3; }
+
+        @media (min-width: 768px) {
+            #dpad { display: none; }
+            #desktop-hint { display: block !important; }
+        }
+
+        /* Trivia Overlay Styles */
+        .trivia-box {
+            background: rgba(10, 10, 25, 0.95);
+            border: 2px solid #ff0055;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .answer-slot {
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid #00ffcc;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .slot-up { grid-column: 2; grid-row: 1; }
+        .slot-left { grid-column: 1; grid-row: 2; }
+        .slot-right { grid-column: 3; grid-row: 2; }
+        .slot-down { grid-column: 2; grid-row: 3; }
+
+        .key-icon {
+            background: #00ffcc;
+            color: #050510;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        #timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            height: 100%;
+            width: 100%;
+            background: #ff0055;
+            transition: width 0.1s linear;
+        }
+        
+        /* Low Health Vignette Overlay */
+        #danger-vignette {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            box-shadow: inset 0 0 100px rgba(255, 0, 85, 0);
+            pointer-events: none;
+            z-index: 5;
+            transition: box-shadow 0.3s ease;
+        }
+        .vignette-active {
+            animation: pulseVignette 1s infinite alternate;
+        }
+        @keyframes pulseVignette {
+            0% { box-shadow: inset 0 0 50px rgba(255, 0, 85, 0.4); }
+            100% { box-shadow: inset 0 0 150px rgba(255, 0, 85, 0.8); }
+        }
+
+        /* Print & PDF Styles for Study Guide */
+        @media print {
+            body, html, #game-container {
+                background: white !important;
+                height: auto !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                color: black !important;
+            }
+            canvas, #hud, #dpad, #start-screen, #end-screen, #trivia-screen, #feedback-screen {
+                display: none !important;
+            }
+            #study-guide-screen {
+                position: relative !important;
+                background: white !important;
+                color: black !important;
+                display: block !important;
+                opacity: 1 !important;
+                padding: 0 !important;
+                height: auto !important;
+            }
+            .no-print { display: none !important; }
+            #study-guide-content {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                color: black !important;
+                background: white !important;
+                border: none !important;
+            }
+            .print-black { color: black !important; text-shadow: none !important; }
+            .page-break { page-break-inside: avoid; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Top HUD -->
+    <div class="absolute top-0 left-0 w-full p-4 pr-16 md:pr-24 flex justify-between items-center z-10 pointer-events-none">
+        <div class="text-xs md:text-base text-green-400 font-bold shadow-black drop-shadow-md flex items-center gap-1 md:gap-2">
+            🛡️ <span class="hidden md:inline">INTEGRITY:</span> 
+            <div class="w-16 md:w-24 h-3 md:h-4 bg-gray-900 border border-green-400 rounded overflow-hidden">
+                <div id="health-bar" class="h-full bg-green-400" style="width: 100%"></div>
+            </div>
+            <span id="health-text" class="text-[10px] md:text-xs">100%</span>
+        </div>
+        <div class="text-[10px] md:text-sm text-yellow-400 font-bold shadow-black drop-shadow-md">
+            🪙 SCORE: <span id="points-display">0</span>
+        </div>
+        <div class="text-[10px] md:text-sm text-fuchsia-400 font-bold shadow-black drop-shadow-md">
+            🦠 <span class="hidden md:inline">DEFEATED:</span> <span id="score-display">0</span>
+        </div>
+    </div>
+
+    <!-- Pause Button -->
+    <button onclick="togglePause()" class="absolute top-3 right-3 z-20 pointer-events-auto bg-slate-900/80 border-2 border-slate-600 hover:bg-slate-700 hover:border-emerald-400 rounded-lg p-2 text-white shadow-lg transition-all active:scale-95 md:text-xl">
+        ⏸️
+    </button>
+
+    <!-- Danger Vignette -->
+    <div id="danger-vignette"></div>
+
+    <!-- The Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Mobile D-PAD -->
+    <div id="dpad" class="hidden">
+        <div class="dpad-btn" id="btn-up">⬆️</div>
+        <div class="dpad-btn" id="btn-left">⬅️</div>
+        <div class="dpad-btn" id="btn-right">➡️</div>
+        <div class="dpad-btn" id="btn-down">⬇️</div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="overlay">
+        <h1 class="text-5xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-600 drop-shadow-[0_0_10px_rgba(0,255,204,0.8)]">CYBER BREACH</h1>
+        <div class="text-6xl mb-6">🕵️‍♂️ vs 🦠</div>
+        <p class="text-teal-100 mb-6 text-center px-8 leading-relaxed max-w-sm">
+            Dodge the roaming malware. If caught, you have <strong class="text-pink-500">6 seconds</strong> to answer a security question. Wrong answers damage your System Integrity, but dodging repairs it over time!
+        </p>
+        <p id="desktop-hint" class="hidden text-emerald-400 mb-6 text-sm font-bold tracking-widest text-center animate-pulse">
+            USE ARROW KEYS TO MOVE & ANSWER
+        </p>
+        <button onclick="startGame()" class="bg-transparent border-2 border-emerald-400 text-emerald-400 hover:bg-emerald-400 hover:text-slate-900 font-bold py-3 px-12 rounded-none text-xl transition-all shadow-[0_0_15px_rgba(52,211,153,0.5)]">
+            INITIALIZE SYSTEM
+        </button>
+    </div>
+
+    <!-- Trivia Interaction Overlay (The 6 Second Minigame) -->
+    <div id="trivia-screen" class="overlay hidden">
+        <div class="trivia-box">
+            <h2 class="text-red-500 font-bold text-xl mb-1 animate-pulse">⚠️ FIREWALL BREACH DETECTED ⚠️</h2>
+            <p id="trivia-q" class="text-white text-md font-bold mb-4 h-16 flex items-center justify-center">Question goes here?</p>
+            
+            <div class="answer-grid">
+                <div class="answer-slot slot-up border-pink-500 bg-pink-500/10">
+                    <span class="key-icon bg-pink-500 text-white">⬆️</span>
+                    <span id="ans-up" class="text-center">Answer 1</span>
+                </div>
+                <div class="answer-slot slot-left border-cyan-400 bg-cyan-400/10">
+                    <span class="key-icon bg-cyan-400 text-black">⬅️</span>
+                    <span id="ans-left" class="text-center">Answer 2</span>
+                </div>
+                <div class="answer-slot slot-right border-yellow-400 bg-yellow-400/10">
+                    <span class="key-icon bg-yellow-400 text-black">➡️</span>
+                    <span id="ans-right" class="text-center">Answer 3</span>
+                </div>
+                <div class="answer-slot slot-down border-emerald-400 bg-emerald-400/10">
+                    <span class="key-icon bg-emerald-400 text-black">⬇️</span>
+                    <span id="ans-down" class="text-center">Answer 4</span>
+                </div>
+            </div>
+
+            <div id="timer-bar-container">
+                <div id="timer-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Overlay (Brief flash of Right/Wrong) -->
+    <div id="feedback-screen" class="overlay hidden bg-transparent !justify-start pt-32 pointer-events-none">
+        <div id="feedback-text" class="text-4xl font-bold px-6 py-3 rounded-xl border-4 shadow-2xl backdrop-blur-md"></div>
+    </div>
+
+    <!-- Game Over / Victory Screen -->
+    <div id="end-screen" class="overlay hidden">
+        <h1 id="end-title" class="text-5xl font-bold mb-4 text-center"></h1>
+        <p id="end-subtitle" class="text-xl text-slate-300 mb-2 px-8 text-center"></p>
+        <p class="text-xl text-yellow-400 mb-8 font-bold drop-shadow-md">FINAL SCORE: <span id="final-points-display">0</span></p>
+        
+        <div class="flex flex-col gap-4 w-full max-w-xs">
+            <button onclick="showStudyGuide()" class="bg-cyan-500 text-slate-900 hover:bg-cyan-400 font-bold py-3 px-10 rounded-none text-lg shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all">
+                📖 SECURITY REPORT
+            </button>
+            <button onclick="startGame()" class="bg-emerald-500 text-slate-900 hover:bg-emerald-400 font-bold py-3 px-10 rounded-none text-lg shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all">
+                REBOOT SYSTEM
+            </button>
+        </div>
+    </div>
+
+    <!-- Study Guide Screen -->
+    <div id="study-guide-screen" class="overlay hidden overflow-y-auto justify-start pt-12 px-4 pb-24 bg-slate-900 z-30">
+        <h1 class="text-3xl font-bold mb-2 text-emerald-400 text-center print-black no-print">Security Report</h1>
+        <p class="text-slate-400 text-sm mb-6 text-center no-print">Review these compromised nodes.</p>
+        
+        <!-- Content gets injected here -->
+        <div id="study-guide-content" class="w-full max-w-md bg-slate-800 border-2 border-slate-600 p-6 rounded-xl text-slate-200 shadow-xl text-left mb-8">
+        </div>
+
+        <!-- Sticky Bottom Buttons -->
+        <div class="fixed bottom-0 left-0 w-full p-4 bg-gradient-to-t from-slate-900 to-transparent flex justify-center gap-4 no-print">
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-none shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2">
+                💾 Save as PDF
+            </button>
+            <button onclick="closeStudyGuide()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-none shadow-lg transition-all">
+                Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-screen" class="overlay hidden z-40 bg-black/90 backdrop-blur-sm">
+        <h2 class="text-4xl font-bold text-emerald-400 mb-8 tracking-widest drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]">SYSTEM PAUSED</h2>
+        <div class="flex flex-col gap-4 w-full max-w-xs">
+            <button onclick="togglePause()" class="bg-emerald-500 text-slate-900 hover:bg-emerald-400 font-bold py-3 px-10 rounded-none text-lg shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all active:scale-95">
+                RESUME
+            </button>
+            <button onclick="quitGame()" class="bg-red-500 text-slate-900 hover:bg-red-400 font-bold py-3 px-10 rounded-none text-lg shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all active:scale-95">
+                ABORT MISSION
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Cyber Security Questions Data ---
+    const questionBank = [
+        { q: "What attack overwhelms a server with massive amounts of fake traffic?", o: ["DDoS", "Phishing", "Keylogging", "Spoofing"], a: 0 },
+        { q: "What malware encrypts your files and demands payment to unlock them?", o: ["Adware", "Ransomware", "Spyware", "Worm"], a: 1 },
+        { q: "Tricking someone into revealing their password is an example of...", o: ["Social Engineering", "Brute Force", "Packet Sniffing", "Zero-Day"], a: 0 },
+        { q: "What scrambles readable data into unreadable format to protect it?", o: ["Compression", "Hashing", "Encryption", "Routing"], a: 2 },
+        { q: "What secures your internet connection on a public Wi-Fi network?", o: ["VPN", "DNS", "HTTP", "LAN"], a: 0 },
+        { q: "Requiring a password AND a text message code to log in is called:", o: ["MFA / 2FA", "Double Check", "Biometrics", "Captcha"], a: 0 },
+        { q: "Malware disguised as legitimate or helpful software is called a:", o: ["Trojan", "Virus", "Rootkit", "Botnet"], a: 0 },
+        { q: "A cyberattack that exploits a previously unknown, unpatched vulnerability:", o: ["Zero-Day", "Backdoor", "Logic Bomb", "SQL Injection"], a: 0 },
+        { q: "A network security system that monitors and controls incoming/outgoing traffic:", o: ["Firewall", "Router", "Switch", "Antivirus"], a: 0 },
+        { q: "A fraudulent email pretending to be a bank to steal your data is:", o: ["Phishing", "Spam", "Vishing", "Whaling"], a: 0 },
+        { q: "What does the 'S' in HTTPS stand for?", o: ["System", "Secure", "Server", "Standard"], a: 1 },
+        { q: "Which of the following makes a strong password?", o: ["Length & Complexity", "Your Pet's Name", "Just Numbers", "Short Words"], a: 0 },
+        { q: "What software automatically tracks the keys typed on a keyboard?", o: ["Keylogger", "Ransomware", "Firewall", "Cookie"], a: 0 },
+        { q: "Using software to guess every possible password combination is a:", o: ["Brute Force Attack", "Man in the Middle", "Phishing Attack", "DDoS Attack"], a: 0 },
+        { q: "What is the practice of finding vulnerabilities in systems to FIX them?", o: ["Ethical Hacking", "Black Hat Hacking", "Cracking", "Doxing"], a: 0 }
+    ];
+
+    // --- Canvas & Context ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // --- Game State Variables ---
+    let width, height;
+    let gameState = 'START'; // START, PLAYING, BREACH_WARNING, TRIVIA, GAMEOVER, VICTORY
+    let animationId;
+    let score = 0;
+    let points = 0;
+    
+    let isPaused = false;
+    let pauseStartTime = 0;
+    
+    let health = 100;
+    const MAX_HEALTH = 100;
+    const DAMAGE_TAKEN = 34; // Roughly 3 hits will drain 100% health
+    const REGEN_RATE = 0.033; // Reduced by 33% (was 0.05). Heals ~2% per sec.
+    
+    // Timer Variables
+    const TRIVIA_TIME_LIMIT = 6000; // 6 seconds
+    let triviaStartTime = 0;
+    let currentEnemyTarget = null;
+    let currentQData = null; // Track the active question
+    let missedQuestions = []; // Track questions answered incorrectly
+    let mappedAnswers = {}; // Maps 'UP', 'DOWN', 'LEFT', 'RIGHT' to answer text/correctness
+
+    // Input State
+    let keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+    // Game Objects
+    let player = { x: 0, y: 0, size: 25, speed: 4, emoji: '🕵️‍♂️', isInvincible: false };
+    let enemies = [];
+    let particles = [];
+    let coins = [];
+    let floatingTexts = []; // New array for arcade-style floating numbers
+    
+    // Screen Shake variable
+    let shakeFrames = 0;
+
+    // --- Initialization ---
+    function resize() {
+        width = canvas.parentElement.clientWidth;
+        height = canvas.parentElement.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // --- Input Handling ---
+    // Keyboard
+    window.addEventListener('keydown', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            keys[e.key] = true;
+            if (gameState === 'TRIVIA') handleTriviaInput(e.key);
+        }
+        if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
+            togglePause();
+        }
+    });
+    window.addEventListener('keyup', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            keys[e.key] = false;
+        }
+    });
+
+    // Mobile D-Pad Touch Handlers
+    const setupDpad = (id, key) => {
+        const btn = document.getElementById(id);
+        const press = (e) => { e.preventDefault(); keys[key] = true; if(gameState==='TRIVIA') handleTriviaInput(key); };
+        const release = (e) => { e.preventDefault(); keys[key] = false; };
+        btn.addEventListener('touchstart', press);
+        btn.addEventListener('mousedown', press);
+        btn.addEventListener('touchend', release);
+        btn.addEventListener('mouseup', release);
+        btn.addEventListener('mouseleave', release);
+    };
+    setupDpad('btn-up', 'ArrowUp');
+    setupDpad('btn-down', 'ArrowDown');
+    setupDpad('btn-left', 'ArrowLeft');
+    setupDpad('btn-right', 'ArrowRight');
+
+    // --- Utility Functions ---
+    function togglePause() {
+        // Only allow pausing during active gameplay or trivia
+        if (gameState !== 'PLAYING' && gameState !== 'TRIVIA') return;
+
+        isPaused = !isPaused;
+        const pauseScreen = document.getElementById('pause-screen');
+        const dpad = document.getElementById('dpad');
+
+        if (isPaused) {
+            pauseStartTime = Date.now();
+            pauseScreen.classList.remove('hidden');
+            dpad.classList.add('hidden'); // Hide controls so they can't be clicked
+        } else {
+            // Offset the trivia timer so they don't lose time while paused
+            if (gameState === 'TRIVIA') {
+                triviaStartTime += (Date.now() - pauseStartTime);
+            }
+            pauseScreen.classList.add('hidden');
+            dpad.classList.remove('hidden');
+        }
+    }
+
+    function quitGame() {
+        isPaused = false;
+        document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('trivia-screen').classList.add('hidden');
+        endGame(); // Triggers the game over screen to show the security report
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function spawnEnemy() {
+        // Spawn far away from player
+        let ex, ey;
+        do {
+            ex = Math.random() * width;
+            ey = Math.random() * height;
+        } while (Math.hypot(ex - player.x, ey - player.y) < 150);
+
+        // Progressive Difficulty: Enemies get faster as your score goes up
+        const speedMultiplier = 1 + (score * 0.08); 
+
+        const virusEmojis = ['🦠', '👾', '🕷️'];
+        enemies.push({
+            x: ex, y: ey,
+            vx: (Math.random() - 0.5) * 4 * speedMultiplier,
+            vy: (Math.random() - 0.5) * 4 * speedMultiplier,
+            size: 25,
+            emoji: virusEmojis[Math.floor(Math.random() * virusEmojis.length)]
+        });
+    }
+
+    function spawnCoin() {
+        let cx = Math.random() * (width - 40) + 20;
+        let cy = Math.random() * (height - 40) + 20;
+        coins.push({
+            x: cx,
+            y: cy,
+            size: 15,
+            emoji: '🪙',
+            floatOffset: Math.random() * Math.PI * 2
+        });
+    }
+
+    function createExplosion(x, y, color) {
+        for(let i=0; i<20; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                life: 1.0, color: color
+            });
+        }
+    }
+
+    function addFloatingText(x, y, text, color) {
+        floatingTexts.push({
+            x: x,
+            y: y,
+            text: text,
+            color: color,
+            life: 1.0,
+            vy: -1.5 // Move upwards
+        });
+    }
+
+    function showFeedback(msg, colorClass) {
+        const fbScreen = document.getElementById('feedback-screen');
+        const fbText = document.getElementById('feedback-text');
+        
+        // Reset classes
+        fbText.className = `text-4xl font-bold px-6 py-3 rounded-xl border-4 shadow-[0_0_30px_currentColor] backdrop-blur-md ${colorClass}`;
+        fbText.innerText = msg;
+        
+        fbScreen.classList.remove('hidden');
+        setTimeout(() => fbScreen.classList.add('hidden'), 1000);
+    }
+
+    function updateHealthUI() {
+        const hBar = document.getElementById('health-bar');
+        const hText = document.getElementById('health-text');
+        const percentage = Math.max(0, Math.floor(health));
+        
+        hBar.style.width = percentage + '%';
+        hText.innerText = percentage + '%';
+        
+        // Change colors from Green -> Yellow -> Flashing Red as health drops
+        const vignette = document.getElementById('danger-vignette');
+        
+        if (health > 60) {
+            hBar.className = "h-full bg-green-400";
+            vignette.classList.remove('vignette-active');
+        } else if (health > 30) {
+            hBar.className = "h-full bg-yellow-400";
+            vignette.classList.remove('vignette-active');
+        } else {
+            hBar.className = "h-full bg-red-500 animate-pulse";
+            vignette.classList.add('vignette-active'); // Turn on red glowing screen edges
+        }
+    }
+
+    // --- Core Game Flow ---
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.add('hidden');
+        document.getElementById('study-guide-screen').classList.add('hidden');
+        document.getElementById('dpad').classList.remove('hidden');
+        
+        score = 0;
+        points = 0;
+        health = 100;
+        missedQuestions = [];
+        document.getElementById('score-display').innerText = score;
+        document.getElementById('points-display').innerText = points;
+        updateHealthUI();
+
+        player.x = width / 2;
+        player.y = height / 2;
+        player.isInvincible = false;
+
+        enemies = [];
+        particles = [];
+        coins = [];
+        floatingTexts = [];
+        shakeFrames = 0;
+        
+        // Spawn initial 5 enemies and 5 coins
+        for(let i=0; i<5; i++) spawnEnemy();
+        for(let i=0; i<5; i++) spawnCoin();
+
+        gameState = 'PLAYING';
+        if(animationId) cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function triggerTrivia(enemy) {
+        gameState = 'BREACH_WARNING';
+        currentEnemyTarget = enemy;
+        
+        // Stop movement keys from sticking
+        keys.ArrowUp = false; keys.ArrowDown = false; keys.ArrowLeft = false; keys.ArrowRight = false;
+
+        // Show a brief buffer warning
+        showFeedback("⚠️ INTRUSION DETECTED ⚠️", "text-yellow-400 border-yellow-400 bg-black/50");
+
+        // Wait 1.2 seconds before showing the question and starting the timer
+        setTimeout(() => {
+            if (gameState === 'BREACH_WARNING') {
+                startTriviaPhase();
+            }
+        }, 1200);
+    }
+
+    function startTriviaPhase() {
+        gameState = 'TRIVIA';
+        
+        // Pick a random question
+        const qData = questionBank[Math.floor(Math.random() * questionBank.length)];
+        currentQData = qData;
+        document.getElementById('trivia-q').innerText = qData.q;
+
+        // Prepare and shuffle answers
+        let answers = qData.o.map((text, index) => ({ text, isCorrect: index === qData.a }));
+        shuffleArray(answers);
+
+        // Map to directions
+        mappedAnswers = {
+            'ArrowUp': answers[0],
+            'ArrowLeft': answers[1],
+            'ArrowRight': answers[2],
+            'ArrowDown': answers[3]
+        };
+
+        // Update UI
+        document.getElementById('ans-up').innerText = answers[0].text;
+        document.getElementById('ans-left').innerText = answers[1].text;
+        document.getElementById('ans-right').innerText = answers[2].text;
+        document.getElementById('ans-down').innerText = answers[3].text;
+
+        // Start Timer
+        triviaStartTime = Date.now();
+        document.getElementById('timer-bar').style.width = '100%';
+        document.getElementById('trivia-screen').classList.remove('hidden');
+    }
+
+    function handleTriviaInput(keyUsed) {
+        if (gameState !== 'TRIVIA' || isPaused) return;
+        
+        let isCorrect = false;
+        
+        if (keyUsed !== 'TIMEOUT_FAILURE') {
+            const selectedAnswer = mappedAnswers[keyUsed];
+            if (!selectedAnswer) return; // Ignore invalid keys
+            isCorrect = selectedAnswer.isCorrect;
+        }
+
+        document.getElementById('trivia-screen').classList.add('hidden');
+        
+        if (isCorrect) {
+            // SUCCESS! Destroy enemy, score point
+            createExplosion(currentEnemyTarget.x, currentEnemyTarget.y, '#00ffcc');
+            addFloatingText(player.x, player.y - 30, "+50", "#00ffcc"); // Show floating score
+            enemies = enemies.filter(e => e !== currentEnemyTarget);
+            score++;
+            points += 50; // 50 points for defeating a virus!
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('points-display').innerText = points;
+            showFeedback("ACCESS GRANTED!", "text-green-400 border-green-400");
+            
+            // Spawn a new enemy to replace the dead one
+            spawnEnemy();
+        } else {
+            // FAILURE! Take damage, give player i-frames, keep enemy
+            
+            // Track missed question
+            if (!missedQuestions.find(q => q.q === currentQData.q)) {
+                missedQuestions.push(currentQData);
+            }
+
+            health -= DAMAGE_TAKEN;
+            shakeFrames = 15; // Trigger screen shake
+            addFloatingText(player.x, player.y - 30, `-${DAMAGE_TAKEN}%`, "#ff0055"); // Show damage text
+            
+            updateHealthUI();
+            createExplosion(player.x, player.y, '#ff0055');
+            showFeedback("INTEGRITY COMPROMISED!", "text-red-500 border-red-500");
+            
+            if (health <= 0) {
+                endGame();
+                return;
+            }
+            
+            // Push player away from enemy and give invincibility
+            player.isInvincible = true;
+            setTimeout(() => player.isInvincible = false, 2000); // 2 seconds safe
+            player.x += (Math.random() > 0.5 ? 50 : -50);
+            player.y += (Math.random() > 0.5 ? 50 : -50);
+        }
+
+        gameState = 'PLAYING';
+    }
+
+    function endGame() {
+        gameState = 'GAMEOVER';
+        document.getElementById('dpad').classList.add('hidden');
+        document.getElementById('trivia-screen').classList.add('hidden');
+        
+        const endScreen = document.getElementById('end-screen');
+        const endTitle = document.getElementById('end-title');
+        const endSub = document.getElementById('end-subtitle');
+
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-points-display').innerText = points;
+        
+        endTitle.innerText = "SYSTEM CORRUPTED";
+        endTitle.className = "text-5xl font-bold mb-4 text-center text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]";
+        endSub.innerText = `You were overtaken by malware. Viruses Defeated: ${score}`;
+    }
+
+    function showStudyGuide() {
+        document.getElementById('end-screen').classList.add('hidden');
+        document.getElementById('study-guide-screen').classList.remove('hidden');
+
+        const contentDiv = document.getElementById('study-guide-content');
+        let html = `
+            <div class="border-b-2 border-slate-600 pb-4 mb-4">
+                <h2 class="text-2xl font-bold text-emerald-400 print-black uppercase tracking-wider">Incident Report</h2>
+                <p class="text-slate-400 text-sm print-black">Security vulnerabilities detected during session.</p>
+            </div>
+        `;
+
+        const listToDisplay = missedQuestions.length > 0 ? missedQuestions : questionBank;
+
+        if (missedQuestions.length === 0) {
+            html += `<p class="text-green-400 font-bold mb-4 print-black">Flawless execution! No vulnerabilities detected. Here is the full security manifest for review:</p>`;
+        }
+
+        listToDisplay.forEach((q, index) => {
+            const correctAnswerText = q.o[q.a];
+            html += `
+                <div class="mb-5 page-break">
+                    <p class="font-bold text-slate-200 print-black leading-tight mb-1">${index + 1}. ${q.q}</p>
+                    <p class="text-emerald-400 font-semibold bg-emerald-900/30 inline-block px-2 py-1 rounded border border-emerald-700 text-sm print-black">
+                        CORRECT PROCEDURE: ${correctAnswerText}
+                    </p>
+                </div>
+            `;
+        });
+
+        contentDiv.innerHTML = html;
+        document.getElementById('study-guide-screen').scrollTop = 0;
+    }
+
+    function closeStudyGuide() {
+        document.getElementById('study-guide-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+    }
+
+    // --- Main Game Loop ---
+    function gameLoop() {
+        if (gameState !== 'PLAYING' && gameState !== 'TRIVIA' && gameState !== 'BREACH_WARNING') return;
+
+        // If paused, keep requesting frames so the loop stays alive, but skip all movement/rendering updates
+        if (isPaused) {
+            animationId = requestAnimationFrame(gameLoop);
+            return;
+        }
+
+        // Apply Screen Shake using Canvas Translate
+        ctx.save();
+        if (shakeFrames > 0) {
+            const magnitude = (shakeFrames / 15) * 8; // Shake gets weaker as it finishes
+            const dx = (Math.random() - 0.5) * magnitude;
+            const dy = (Math.random() - 0.5) * magnitude;
+            ctx.translate(dx, dy);
+            shakeFrames--;
+        }
+
+        // Clear Canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw Grid Background
+        ctx.strokeStyle = 'rgba(0, 255, 204, 0.05)';
+        ctx.lineWidth = 1;
+        const gridSize = 40;
+        // Scroll grid slightly with player position for parallax effect
+        const offsetX = -(player.x % gridSize) * 0.1;
+        const offsetY = -(player.y % gridSize) * 0.1;
+        
+        ctx.beginPath();
+        for(let x=offsetX; x<width; x+=gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
+        for(let y=offsetY; y<height; y+=gridSize) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
+        ctx.stroke();
+
+        // ---------------- PLAYING STATE LOGIC ----------------
+        if (gameState === 'PLAYING') {
+            // Health Regeneration (only active while dodging, not while answering questions)
+            if (health < MAX_HEALTH) {
+                health = Math.min(MAX_HEALTH, health + REGEN_RATE);
+                updateHealthUI();
+            }
+
+            // Player Movement
+            if (keys.ArrowLeft) player.x -= player.speed;
+            if (keys.ArrowRight) player.x += player.speed;
+            if (keys.ArrowUp) player.y -= player.speed;
+            if (keys.ArrowDown) player.y += player.speed;
+
+            // Constrain player to screen
+            player.x = Math.max(player.size, Math.min(width - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(height - player.size, player.y));
+
+            // Coin Logic
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let c = coins[i];
+                c.floatOffset += 0.05; // Hover animation
+                
+                // Collision Check for Coin
+                if (Math.hypot(player.x - c.x, player.y - c.y) < (player.size/2 + c.size)) {
+                    points += 5; // Small points for collecting coins
+                    document.getElementById('points-display').innerText = points;
+                    createExplosion(c.x, c.y, '#facc15'); // Yellow explosion
+                    addFloatingText(c.x, c.y, "+5", "#facc15"); // Floating text
+                    coins.splice(i, 1);
+                    spawnCoin(); // Spawn a new coin to keep the map populated
+                }
+            }
+
+            // Enemy Logic
+            enemies.forEach(e => {
+                // Move
+                e.x += e.vx;
+                e.y += e.vy;
+
+                // Bounce off walls
+                if (e.x < e.size || e.x > width - e.size) e.vx *= -1;
+                if (e.y < e.size || e.y > height - e.size) e.vy *= -1;
+
+                // Slight homing towards player occasionally
+                if (Math.random() < 0.02) {
+                    const angle = Math.atan2(player.y - e.y, player.x - e.x);
+                    e.vx += Math.cos(angle) * 0.5;
+                    e.vy += Math.sin(angle) * 0.5;
+                    // Limit max speed
+                    const currentSpeed = Math.hypot(e.vx, e.vy);
+                    if (currentSpeed > 3) {
+                        e.vx = (e.vx / currentSpeed) * 3;
+                        e.vy = (e.vy / currentSpeed) * 3;
+                    }
+                }
+
+                // Collision Check
+                if (!player.isInvincible && Math.hypot(player.x - e.x, player.y - e.y) < (player.size + e.size - 10)) {
+                    triggerTrivia(e);
+                }
+            });
+        }
+
+        // ---------------- TRIVIA STATE LOGIC ----------------
+        if (gameState === 'TRIVIA') {
+            const timeElapsed = Date.now() - triviaStartTime;
+            const timeRemaining = Math.max(0, TRIVIA_TIME_LIMIT - timeElapsed);
+            const percentage = (timeRemaining / TRIVIA_TIME_LIMIT) * 100;
+            
+            // Update UI Bar
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.width = percentage + '%';
+            
+            // Change color as time runs low
+            if (percentage < 30) timerBar.style.backgroundColor = '#ff0000';
+            else if (percentage < 60) timerBar.style.backgroundColor = '#ffaa00';
+            else timerBar.style.backgroundColor = '#00ffcc';
+
+            // Time's up failure
+            if (timeRemaining === 0) {
+                // Synthesize a wrong answer to trigger the failure state
+                handleTriviaInput('TIMEOUT_FAILURE');
+            }
+        }
+
+        // ---------------- RENDERING ----------------
+        
+        // Draw Particles
+        for(let i=particles.length-1; i>=0; i--) {
+            let pt = particles[i];
+            pt.x += pt.vx; pt.y += pt.vy;
+            pt.life -= 0.03;
+            if(pt.life <= 0) { particles.splice(i, 1); } 
+            else {
+                ctx.globalAlpha = pt.life;
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 4, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Update and Draw Floating Texts
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for(let i = floatingTexts.length - 1; i >= 0; i--) {
+            let ft = floatingTexts[i];
+            ft.y += ft.vy;
+            ft.life -= 0.02; // Fade out speed
+            
+            if (ft.life <= 0) {
+                floatingTexts.splice(i, 1);
+            } else {
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 22px "Share Tech Mono", monospace';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = ft.color;
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.shadowBlur = 0;
+            }
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Draw Coins
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        coins.forEach(c => {
+            let drawY = c.y + Math.sin(c.floatOffset) * 5; // Bob up and down
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(250, 204, 21, 0.8)'; // Yellow glow
+            ctx.fillText(c.emoji, c.x, drawY);
+            ctx.shadowBlur = 0;
+        });
+
+        // Draw Enemies
+        ctx.font = '28px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        enemies.forEach(e => {
+            // Give them a red glow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(255, 0, 85, 0.8)';
+            ctx.fillText(e.emoji, e.x, e.y);
+            ctx.shadowBlur = 0; // reset
+        });
+
+        // Draw Player
+        if (player.isInvincible) ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 100) * 0.3; // Flashing
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(0, 255, 204, 0.8)';
+        ctx.fillText(player.emoji, player.x, player.y);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+
+        // Restore canvas from screen shake translation
+        ctx.restore();
+
+        // Request next frame
+        animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    // Initial draw to set background
+    ctx.clearRect(0, 0, width, height);
+</script>
+</body>
+</html>

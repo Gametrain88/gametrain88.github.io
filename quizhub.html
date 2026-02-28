@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Hub | Joshua Butler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); }
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .quiz-card:hover { transform: translateY(-5px); border-color: rgba(96, 165, 250, 0.5); }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 antialiased overflow-x-hidden">
+
+    <!-- ==========================================
+         NAVIGATION BAR
+         ========================================== -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3 group">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-xl group-hover:rotate-12 transition">J</div>
+                    <span class="font-bold text-lg tracking-tight hidden sm:block">Joshua Butler</span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+                <a href="index.html" class="hover:text-blue-400 transition">Home</a>
+                <a href="AboutMe.html" class="hover:text-blue-400 transition">About Me</a>
+                <a href="https://github.com/Gametrain88" class="hover:text-blue-400 transition">Github</a>
+                <a href="https://medium.com/@joshuabutler31" class="hover:text-blue-400 transition">Stories</a>
+            </div>
+            <a href="mailto:gametraintech@gmail.com" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full text-sm font-semibold transition text-white">
+                Contact
+            </a>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- ==========================================
+                 HEADER SECTION
+                 ========================================== -->
+            <section class="text-center mb-20">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">Personal <span class="gradient-text">Learning Hub</span></h1>
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                    Test your knowledge with these free interactive quizzes and explore my personal projects in programming and storytelling.
+                </p>
+            </section>
+
+            <!-- ==========================================
+                 COMPUTER SCIENCE BASICS SECTION
+                 ========================================== -->
+            <section class="mb-20">
+                <div class="flex items-center space-x-4 mb-10">
+                    <h2 class="text-2xl font-bold text-white">Computer Science Basics</h2>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Quiz Card: CS Basics Challenge -->
+                    <div class="quiz-card bg-slate-800/30 border border-slate-800 p-8 rounded-[2rem] flex flex-col transition duration-300 group">
+                        <div class="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <i class="fas fa-laptop-code text-2xl text-indigo-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">CS Basics Challenge</h3>
+                        <p class="text-slate-400 text-sm mb-8 flex-grow leading-relaxed">
+                            A fast-paced 30-question quiz covering hardware, binary, logic, and web fundamentals. Perfect for sharpening your skills.
+                        </p>
+                        <a href="CSB1.html" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-center rounded-xl font-bold transition">
+                            Play Quiz
+                        </a>
+                    </div>
+
+                    <!-- Placeholder for future CS Quiz -->
+                    <div class="bg-slate-800/10 border border-slate-800/50 p-8 rounded-[2rem] border-dashed flex flex-col items-center justify-center text-center opacity-60">
+                        <i class="fas fa-plus text-xl text-slate-600 mb-4"></i>
+                        <p class="text-slate-500 text-sm">More CS Challenges Coming Soon</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CYBERSECURITY & IT SECTION
+                 ========================================== -->
+            <section class="mb-20">
+                <div class="flex items-center space-x-4 mb-10">
+                    <h2 class="text-2xl font-bold text-white">Cybersecurity & IT</h2>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Placeholder Quiz Card (Coming Soon) -->
+                    <div class="bg-slate-800/10 border border-slate-800/50 p-8 rounded-[2rem] border-dashed flex flex-col items-center justify-center text-center opacity-60">
+                        <div class="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6">
+                            <i class="fas fa-shield-alt text-2xl text-green-500/50"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Cybersecurity Fundamentals</h3>
+                        <p class="text-slate-500 text-sm">Testing your knowledge on network security, encryption, and safe digital practices.</p>
+                        <span class="mt-4 px-4 py-1 bg-slate-800 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500">Coming Soon</span>
+                    </div>
+
+                    <!-- Placeholder for future IT Quiz -->
+                    <div class="bg-slate-800/10 border border-slate-800/50 p-8 rounded-[2rem] border-dashed flex flex-col items-center justify-center text-center opacity-60">
+                        <i class="fas fa-plus text-xl text-slate-600 mb-4"></i>
+                        <p class="text-slate-500 text-sm">IT Support Quiz Coming Soon</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 PROGRAMMING SECTION (Updated from Game Development)
+                 ========================================== -->
+            <section class="mb-32">
+                <div class="flex items-center space-x-4 mb-10">
+                    <h2 class="text-2xl font-bold text-white">Programming</h2>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Placeholder Quiz Card (Coming Soon) -->
+                    <div class="bg-slate-800/10 border border-slate-800/50 p-8 rounded-[2rem] border-dashed flex flex-col items-center justify-center text-center opacity-60">
+                        <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
+                            <i class="fas fa-code text-2xl text-blue-500/50"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Unity3D & C# Quiz</h3>
+                        <p class="text-slate-500 text-sm">Challenge yourself with advanced game logic, scripting, and software architecture questions.</p>
+                        <span class="mt-4 px-4 py-1 bg-slate-800 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500">Coming Soon</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CONTENT & CREATIONS SECTION
+                 ========================================== -->
+            <section class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-[3rem] p-10 md:p-16">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6 italic tracking-tight">Creations & <span class="text-blue-400">Storytelling</span></h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            Beyond technical quizzes, I spend my time crafting digital worlds and written stories. Explore my latest videos and my personal book project.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3 text-slate-300">
+                                <i class="fas fa-book-open text-blue-500"></i>
+                                <span>Personal Book Project (My Stories)</span>
+                            </div>
+                            <div class="flex items-center space-x-3 text-slate-300">
+                                <i class="fas fa-video text-blue-500"></i>
+                                <span>Game Dev Devlogs & Tutorials</span>
+                            </div>
+                            <div class="flex items-center space-x-3 text-slate-300">
+                                <i class="fas fa-code-branch text-blue-500"></i>
+                                <span>Unity3D Open Source Assets</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Content Link 1: Medium/Stories -->
+                        <a href="https://medium.com/@joshuabutler31" class="p-6 glass border border-slate-700 rounded-2xl flex items-center justify-between hover:bg-white/5 transition group">
+                            <div>
+                                <h4 class="font-bold text-white group-hover:text-blue-400 transition">Read My Stories</h4>
+                                <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Personal Book Project</p>
+                            </div>
+                            <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400 transition"></i>
+                        </a>
+                        
+                        <!-- Content Link 2: YouTube -->
+                        <a href="https://www.youtube.com/channel/UCy3rsDMTM6XghPM4D6LBA9Q" class="p-6 glass border border-slate-700 rounded-2xl flex items-center justify-between hover:bg-white/5 transition group">
+                            <div>
+                                <h4 class="font-bold text-white group-hover:text-blue-400 transition">Watch on YouTube</h4>
+                                <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Devlogs & Creative Projects</p>
+                            </div>
+                            <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400 transition"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-12 px-4 text-center border-t border-slate-900 mt-20">
+        <p class="text-slate-500 text-sm">© 2025 Joshua Butler • Personal Creations & Learning</p>
+    </footer>
+
+</body>
+</html>
